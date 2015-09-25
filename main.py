@@ -31,25 +31,22 @@ def search_from_api(response_format, search_type, year):
     }
     response = requests.get('http://rebrickable.com/api/search', params=params)
 
-    # csvreader = csv.reader(response.text.splitlines())
-    # for row in csvreader:
-    #     print row[0]
-
     return response.text
 
-def save_sets(file_format, year):
-    file_name = 'data/sets-' + str(year) + '.' + file_format
+# Not completed yet. It should follow the same pattern as the json version
+def save_all_sets_csv():
+    result_string = ''
 
-    result_string = search_from_api(file_format, 'S', year)
+    for year in range(2015, 2016):
+        result_string += search_from_api('csv', 'S', year)
 
-    with codecs.open(file_name, 'w', 'utf-8') as my_file:
-        if file_format == 'json':
-            my_file.write(json.dumps(json.loads(result_string), sort_keys=True, indent=4))
-        elif file_format == 'csv':
-            my_file.write(result_string)
+    with codecs.open('data/all_sets.csv', 'w', 'utf-8') as my_file:
+        my_file.write(result_string)
 
+    csv_reader = csv.reader(result_string.splitlines())
+    
 
-def save_all_sets():
+def save_all_sets_json():
     all_sets = []
 
     for year in range(1995, 2016):
@@ -107,17 +104,6 @@ def get_part_out_price(set_complete_id):
     return {'part_out_avg_price': avg_price,
             'part_out_cur_price': current_price}
 
-def save_all():
-    result_string = ''
-
-    for year in range(2015, 2016):
-        result_string += search_from_api('csv', 'S', year)
-
-    with codecs.open('data/all_sets.csv', 'w', 'utf-8') as my_file:
-        my_file.write(result_string)
-
-    csv_reader = csv.reader(result_string.splitlines())
-
 
 def save_colors():
     params = {
@@ -132,7 +118,7 @@ def save_colors():
 
 if __name__ == '__main__':
 
-    save_all_sets()
+    save_all_sets_json()
 
     # print json.dumps(lego_sets, sort_keys=True, indent=4)
 
