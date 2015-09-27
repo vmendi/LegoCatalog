@@ -1,0 +1,8 @@
+http://docs.python-guide.org/en/latest/dev/virtualenvs/
+
+pip3 install virtualenv (ya lo tendras instalado)
+virtualenv python3_env (en realidad, lo acabe creando dentro de intellij)
+source activate.sh
+
+pip3 freeze > requirements.txt (vas instalando paquetes con pip y luego haces un freeze para generar requirements.txt)
+pip3 install -r requirements.txt (installa los paquetes, en este caso en el entorno virtual)

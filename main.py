@@ -1,15 +1,11 @@
-__author__ = 'vmendi'
-
-import requests
 import json
 import csv
-import os
+import requests
 import codecs
-import pprint
-import unicodecsv
 import re
-from lxml import html
 from time import sleep
+from lxml import html
+import xml.etree.ElementTree as etree
 
 
 def search_from_api(response_format, search_type, year):
@@ -33,48 +29,52 @@ def search_from_api(response_format, search_type, year):
 
     return response.text
 
-# Not completed yet. It should follow the same pattern as the json version
-def save_all_sets_csv():
-    result_string = ''
 
-    for year in range(2015, 2016):
-        result_string += search_from_api('csv', 'S', year)
+def read_parts():
+    parts_filename = 'data/BrickLink/Parts.xml'
 
-    with codecs.open('data/all_sets.csv', 'w', 'utf-8') as my_file:
-        my_file.write(result_string)
+    print("Reading file: {}...".format(parts_filename))
+    xml_tree = etree.parse(parts_filename)
 
-    csv_reader = csv.reader(result_string.splitlines())
-    
+    root = xml_tree.getroot()
+    print("Number of items found: {}".format(len(root)))
 
+
+
+
+
+# Lee los sets de un rango de anyos desde rebrickable y los graba a disco, incluyendo los part-out prices que obtiene
+# de bricklink.
 def save_all_sets_json():
     all_sets = []
 
-    for year in range(1995, 2016):
-        print 'Requesting sets for year ' + str(year) + '...',
+    for year in range(2015, 2016):
+        print('Requesting sets from Rebrickable for year ' + str(year) + '...')
 
         result_string = search_from_api('json', 'S', year)
         result_json = json.loads(result_string)
 
-        print '{} sets in {}'.format(len(result_json['results']), year)
+        print('{} sets in {}'.format(len(result_json['results']), year))
 
         all_sets.extend(result_json['results'])
 
-    print '{} sets in total'.format(len(all_sets))
+    print('{} sets in total'.format(len(all_sets)))
 
-    with open('data/all_sets_temp.json', 'w') as my_file:
+    with open('data/Rebrickable/all_sets_temp.json', 'w') as my_file:
         my_file.write(json.dumps(all_sets, sort_keys=True, indent=4))
 
     for lego_set in all_sets:
-        print 'Request part out price for set ' + lego_set['set_id'] + ' from year ' + lego_set['year'] + '...',
+        print('Request part out price from Bricklink for set ' + lego_set['set_id'] +
+              ' from year ' + lego_set['year'] + '...')
 
         part_out_prices = get_part_out_price(lego_set['set_id'])
         lego_set.update(part_out_prices)
 
-        print '{}'.format(str(part_out_prices))
+        print('{}'.format(str(part_out_prices)))
 
         sleep(1)
 
-    with open('data/all_sets.json', 'w') as my_file:
+    with open('data/Rebrickable/all_sets.json', 'w') as my_file:
         my_file.write(json.dumps(all_sets, sort_keys=True, indent=4))
 
 
@@ -98,7 +98,7 @@ def get_part_out_price(set_complete_id):
         avg_price = re.match(r".*\$(\d*)", avg_price[0]).group(1)
         current_price = re.match(r".*\$(\d*)", current_price[0]).group(1)
     except Exception as exc:
-        print 'Error getting part out price for set ' + set_complete_id + ': ' + exc.message
+        print('Error getting part out price for set ' + set_complete_id + ': ' + exc)
         return {}
 
     return {'part_out_avg_price': avg_price,
@@ -118,9 +118,22 @@ def save_colors():
 
 if __name__ == '__main__':
 
-    save_all_sets_json()
+    # save_all_sets_json()
+    read_parts()
 
     # print json.dumps(lego_sets, sort_keys=True, indent=4)
 
 
+# Not completed yet. It should follow the same pattern as the json version. But the better alternative would be to save
+# csv converting from memory dictionaries.
+def save_all_sets_csv():
+    result_string = ''
+
+    for year in range(2015, 2016):
+        result_string += search_from_api('csv', 'S', year)
+
+    with codecs.open('data/all_sets.csv', 'w', 'utf-8') as my_file:
+        my_file.write(result_string)
+
+    csv_reader = csv.reader(result_string.splitlines())
 
