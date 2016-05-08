@@ -70,6 +70,7 @@ CREATE TABLE inventories
 	counterpart CHAR NOT NULL
 );
 
+# Download these files from http://www.bricklink.com/catalogDownload.asp
 LOAD DATA INFILE '/users/vmendi/Documents/LegoCatalog/data/BrickLink/Categories.txt' INTO TABLE categories LINES TERMINATED BY '\r\n' IGNORE 2 LINES;
 LOAD DATA INFILE '/users/vmendi/Documents/LegoCatalog/data/BrickLink/Colors.txt' INTO TABLE colors LINES TERMINATED BY '\r\n' IGNORE 2 LINES;
 LOAD DATA INFILE '/users/vmendi/Documents/LegoCatalog/data/BrickLink/Parts.txt' INTO TABLE parts LINES TERMINATED BY '\r\n' IGNORE 3 LINES;
@@ -186,10 +187,11 @@ group by category_name
 order by parts_count_per_category desc;
 
 # Cuantos tipos de piezas a partir de un año pero que aparezcan en la lista filtrada?
-select SUM(distinct(inventories.part_number) from inventories 
+select SUM(distinct(inventories.part_number)
+	from inventories
 	join sets on inventories.set_number = sets.number 
 	join filtered_parts on filtered_parts.number = inventories.part_number
-	where sets.year >= 2006 and type = "P";
+where sets.year >= 2006 and type = "P";
 	
 # Ranking segun cantidad de piezas en sets a partir de un anyo. Da una idea de la probabilidad de encontrarnos con una pieza. Solo
 # una idea, no conocemos cuantos sets se vendieron de cada.

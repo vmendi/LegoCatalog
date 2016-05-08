@@ -2,7 +2,7 @@ import json
 
 from collections import defaultdict, OrderedDict
 
-from main import read_json
+from bricklink import read_json
 from operator import itemgetter
 
 
