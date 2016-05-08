@@ -87,15 +87,24 @@ and categories.category_name not like '%sticker%'
 and categories.category_name not like '%minifig%'
 and categories.category_name not like '%modulex%'
 and categories.category_name not like '%jumbo%'
+and parts.name not like '%duplo%'
 ;
 
-# Cuantas categorias tenemos?
-SELECT distinct category_name from filtered_parts;	# 162
+# Cuantas piezas en la vista filtrada?
+SELECT count(*) from filtered_parts;
 
-# Cuantos tipos de piezas a partir de un año?
+# Cuantas piezas por categoria
+SELECT count(*) as parts_per_category, categories.category_name from filtered_parts
+join categories on filtered_parts.category_id = categories.category_id
+group by categories.category_name
+order by parts_per_category desc;
+
+# Cuantos tipos de piezas a partir de un año pero que aparezcan en la lista filtrada?
 select distinct(inventories.part_number) from inventories 
 	join sets on inventories.set_number = sets.number 
-	where sets.year >= 2005 and type = "P";
+	join filtered_parts on filtered_parts.number = inventories.part_number
+	where sets.year >= 2006 and type = "P";
+	
 
 # Piezas agrupadas por color. Cuantas en total ponen en los sets a partir de un año?
 SELECT SUM(QTY), inventories.part_number, colors.color_name, parts.name, parts.weight
@@ -115,7 +124,79 @@ where sets.year >= 1990 and sets.category_name not like '%duplo%'
 group by inventories.color_id order by sum(qty) desc;
 
 # Cuantas piezas pesan lo mismo?
-select weight, count(*) from filtered_parts group by weight order by weight desc;
+select weight, count(*) from filtered_parts group by weight order by weight asc;
 
 # Cuantas piezas pesan mas de una cantidad?
-select * from filtered_parts where weight > 500;
+select * from filtered_parts where weight > 100;
+
+#----------------------------------------------------------------------------------------
+# Empiezo de nuevo, creo que lo mejor es tomar la lista filtrada como base para todas las
+# demas queries, especialmente la de peso que es la que mas nos interesa ahora mismo, 
+# dejo lo de arriba como referencia
+
+# Vistra filtrada que quita categorias que no nos gustan y piezas que no aparecen desde X year
+create or replace view filtered_parts as
+select parts.category_id, parts.category_name, parts.number, parts.name, parts.weight, parts.dimensions 
+	from parts
+	join categories on parts.category_id = categories.category_id
+	join inventories on inventories.part_number = parts.number
+	join sets on inventories.set_number = sets.number 
+where categories.category_name not like '%duplo%'   # Bebes
+and categories.category_name not like '%sticker%'   # Papeles
+and categories.category_name not like '%minifig%'   # Mejor prefiltrarlas a mano
+and categories.category_name not like '%modulex%'   # Raras
+and categories.category_name not like '%jumbo%'     # Bebes
+and categories.category_name not like '%primo%'     # Bebes
+and categories.category_name not like '%paper%'     # Papeles
+and categories.category_name not like '%belville%'	# Ninyas, muy raras
+and categories.category_name not like '%electric%'	# Creo que no habra muchas y sera facil prefiltrarlas
+and categories.category_name not like '%clikits%'   # Son unas minifigs y piezas raras (estrella hexagonal?!) de ninya
+and categories.category_name not like '%foam%'      # Piezas de foam raras
+and categories.category_name not like '%galidor%'   # Muy raras, parecen como que las hicieron para McDonalds
+and categories.category_name not like '%bionicle%'  # En principio no queremos bionicles
+and categories.category_name not like '%scala%'	    # Antiguo and for girls
+and categories.category_name not like '%large figure part%' # Piezas como de figures raras, algunas de Nestle
+and categories.category_name not like '%fabuland%'	# Acabo en 1989 y son para bebes
+and parts.name not like '%duplo%'                   # Despues de filtrar por el nombre de la categoria, aun quedan algunas piezas
+and parts.name not like '%belville%'                # Despues de filtrar por el nombre de la categoria, aun quedan algunas piezas
+and parts.category_name not like '%decorated%'      # OPCIONAL! Las piezas decoradas en general pesan lo mismo que la base. De ~14,000 a 5700!
+and sets.year >= 2000 and inventories.type = "P"
+group by parts.weight, parts.category_id, parts.category_name, parts.number, parts.name, parts.dimensions  # Agrupadas por peso primero, 
+																										   # para que puedas ver repeticion 
+																										   # y distancia entre pesos
+;
+
+# Cuantas piezas en la vista filtrada?
+SELECT count(*) from filtered_parts;
+
+# Cuantas piezas pesan lo mismo?
+select weight, count(*) 
+	from filtered_parts
+group by weight order by weight asc;
+
+# Ver todas las que pesan lo mismo de un peso concreto, para ver que pinta tienen
+select *
+	from filtered_parts
+where weight = 1.2;
+
+# Numero de piezas por categoria
+select count(*) as parts_count_per_category, category_name
+	from filtered_parts
+group by category_name
+order by parts_count_per_category desc;
+
+# Cuantos tipos de piezas a partir de un año pero que aparezcan en la lista filtrada?
+select SUM(distinct(inventories.part_number) from inventories 
+	join sets on inventories.set_number = sets.number 
+	join filtered_parts on filtered_parts.number = inventories.part_number
+	where sets.year >= 2006 and type = "P";
+	
+# Ranking segun cantidad de piezas en sets a partir de un anyo. Da una idea de la probabilidad de encontrarnos con una pieza. Solo
+# una idea, no conocemos cuantos sets se vendieron de cada.
+SELECT SUM(inventories.QTY), filtered_parts.number, filtered_parts.name, filtered_parts.weight, filtered_parts.category_name, filtered_parts.dimensions
+	from inventories 
+	join sets on inventories.set_number = sets.number
+	join filtered_parts on filtered_parts.number = inventories.part_number
+where sets.year >= 2000 and type = "P"
+group by filtered_parts.number
+order by sum(qty) desc;
