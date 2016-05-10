@@ -6,3 +6,11 @@ source activate.sh (no olvides el source!)
 
 pip3 freeze > requirements.txt (vas instalando paquetes con pip y luego haces un freeze para generar requirements.txt)
 pip3 install -r requirements.txt (installa los paquetes, en este caso en el entorno virtual)
+
+------------------------------------------------------
+Sobre Qt/Pyside (seccion deprecada, lo desinstale):
+Se instala a traves de requirements.txt, pero curiosamente Qt requirio primero instalar los binaries. La version actual
+es 4.8.7:
+
+brew install qt
+sudo pip install pyside

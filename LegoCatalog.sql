@@ -136,7 +136,7 @@ select * from filtered_parts where weight > 100;
 # dejo lo de arriba como referencia
 
 # Vistra filtrada que quita categorias que no nos gustan y piezas que no aparecen desde X year
-create or replace view filtered_parts as
+create table filtered_parts as
 select parts.category_id, parts.category_name, parts.number, parts.name, parts.weight, parts.dimensions 
 	from parts
 	join categories on parts.category_id = categories.category_id
@@ -179,6 +179,11 @@ group by weight order by weight asc;
 select *
 	from filtered_parts
 where weight = 1.2;
+
+# La query para filtrar por peso con threshold
+SELECT *
+	FROM filtered_parts
+WHERE weight >= 2.32 - 0.01 AND weight <= 2.32 + 0.01;
 
 # Numero de piezas por categoria
 select count(*) as parts_count_per_category, category_name
