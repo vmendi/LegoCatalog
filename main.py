@@ -1,7 +1,24 @@
 import tkinter as tk
 
+import time
+import io
+import serial
+
 from PIL import ImageTk
 from weight import get_by_weight_from_db_with_threshold, fetch_part_image
+
+def scan():
+    # scan for available ports. return a list of tuples (num, name)
+    available = []
+    for i in range(256):
+        try:
+            s = serial.Serial(str(i))
+            available.append((i, s.portstr))
+            s.close()
+        except serial.SerialException:
+            pass
+
+    return available
 
 
 class Application(tk.Frame):
@@ -25,7 +42,7 @@ class Application(tk.Frame):
     def create_image_widgets(self):
         self.image_widgets = []
 
-        parts = get_by_weight_from_db_with_threshold(0.32, 0.01)
+        parts = get_by_weight_from_db_with_threshold(2.32, 0.01)
 
         for part in parts:
             try:
@@ -62,7 +79,39 @@ if __name__ == '__main__':
 
     center_window(root)
 
-    myapp.mainloop()
+    # print("Scanning ports...")
+    # for n,s in scan():
+    #     print("(%d) %s" % (n,s))
+    # print("Port scan done.")
 
+    try:
+        ser = serial.Serial("/dev/tty.usbserial-A104WBQ0", 9600, bytesize=serial.SEVENBITS,
+                            parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE,
+                            timeout=1,  # Timeout while waiting for a readLine()
+                            xonxoff=False, rtscts=False, dsrdtr=False)
+    except:
+        print("Error opening com port. Quitting.")
 
+    print("Opening " + ser.portstr)
 
+    while True:
+        # byte_buffer = ser.readline()
+        byte_buffer = [1]
+
+        if len(byte_buffer) > 0:
+            the_line = "ST,GS,+  9.525g   \r\n"
+            # the_line = byte_buffer.decode(encoding='ascii', errors='ignore')
+            print(the_line)
+
+            unit = the_line[14:18]
+            print("Parsing unit %s" % unit)
+            if 'g' in unit:
+                weight = the_line[6:14]
+                weight = weight.replace("+", "").replace(" ", "")
+                weight = float(weight)
+
+                print("Parsed %sg" % weight)
+            else:
+                print("Grams NOT detected in UNIT")
+
+        # myapp.mainloop()
