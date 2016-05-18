@@ -1,24 +1,8 @@
 import tkinter as tk
 
-import time
-import io
-import serial
-
 from PIL import ImageTk
 from weight import get_by_weight_from_db_with_threshold, fetch_part_image
-
-def scan():
-    # scan for available ports. return a list of tuples (num, name)
-    available = []
-    for i in range(256):
-        try:
-            s = serial.Serial(str(i))
-            available.append((i, s.portstr))
-            s.close()
-        except serial.SerialException:
-            pass
-
-    return available
+from weight_reader import weight_reader
 
 
 class Application(tk.Frame):
@@ -38,6 +22,21 @@ class Application(tk.Frame):
 
         self.inner_frame = tk.Frame(self)
         self.inner_frame.pack(side="bottom", fill='x')
+
+        self.left_frame = tk.Frame(self)
+        self.weight_label = tk.Label(self.left_frame, text='Blah')
+        self.weight_label.pack(fill='both')
+        self.left_frame.pack(side="left", fill='y')
+
+        self.my_weight_reader = weight_reader()
+        self.my_weight_reader.start()
+
+        self.after(100, self.check_new_weight)
+
+    def check_new_weight(self):
+        last_weight = self.my_weight_reader.get_last_weight()
+        self.weight_label["text"] = last_weight
+        self.after(100, self.check_new_weight)
 
     def create_image_widgets(self):
         self.image_widgets = []
@@ -79,39 +78,4 @@ if __name__ == '__main__':
 
     center_window(root)
 
-    # print("Scanning ports...")
-    # for n,s in scan():
-    #     print("(%d) %s" % (n,s))
-    # print("Port scan done.")
-
-    try:
-        ser = serial.Serial("/dev/tty.usbserial-A104WBQ0", 9600, bytesize=serial.SEVENBITS,
-                            parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE,
-                            timeout=1,  # Timeout while waiting for a readLine()
-                            xonxoff=False, rtscts=False, dsrdtr=False)
-    except:
-        print("Error opening com port. Quitting.")
-
-    print("Opening " + ser.portstr)
-
-    while True:
-        # byte_buffer = ser.readline()
-        byte_buffer = [1]
-
-        if len(byte_buffer) > 0:
-            the_line = "ST,GS,+  9.525g   \r\n"
-            # the_line = byte_buffer.decode(encoding='ascii', errors='ignore')
-            print(the_line)
-
-            unit = the_line[14:18]
-            print("Parsing unit %s" % unit)
-            if 'g' in unit:
-                weight = the_line[6:14]
-                weight = weight.replace("+", "").replace(" ", "")
-                weight = float(weight)
-
-                print("Parsed %sg" % weight)
-            else:
-                print("Grams NOT detected in UNIT")
-
-        # myapp.mainloop()
+    myapp.mainloop()
