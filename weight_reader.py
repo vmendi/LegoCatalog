@@ -1,5 +1,6 @@
 import threading
 import time
+from decimal import Decimal
 import serial
 
 
@@ -8,7 +9,7 @@ class weight_reader (threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.weight_lock = threading.Lock()
-        self.last_weight = 0
+        self.last_weight = Decimal(0)
 
     def run(self):
         serial_port = None
@@ -28,7 +29,7 @@ class weight_reader (threading.Thread):
                 if 'g' in unit:
                     weight = the_line[6:14]
                     weight = weight.replace("+", "").replace(" ", "")
-                    weight = float(weight)
+                    weight = Decimal(weight)
 
                     self.weight_lock.acquire()
                     self.last_weight = weight
