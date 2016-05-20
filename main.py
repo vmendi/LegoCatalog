@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import font
 
 from PIL import ImageTk
 from weight import get_by_weight_from_db_with_threshold, fetch_part_image
@@ -12,19 +13,23 @@ class Application(tk.Frame):
 
         self.image_widgets = []
 
+        # Top frame
         self.top_frame = tk.Frame(self)
-        self.top_frame.pack(side="top")
+        self.top_frame.pack(side="top", fill='x')
 
         self.hi_there = tk.Button(self.top_frame)
         self.hi_there["text"] = "Hello World"
         self.hi_there["command"] = self.create_image_widgets
-        self.hi_there.pack(side="left")
+        self.hi_there.grid()
 
+        # Center frame
         self.inner_frame = tk.Frame(self)
         self.inner_frame.pack(side="bottom", fill='x')
 
-        self.left_frame = tk.Frame(self)
-        self.weight_label = tk.Label(self.left_frame, text='Blah')
+        custom_font = font.Font(family="Helvetica", size=60)
+
+        self.left_frame = tk.Frame(self, width=300, background="#%02x%02x%02x" % (128, 192, 200))
+        self.weight_label = tk.Label(self.left_frame, text='Blah', font=custom_font)
         self.weight_label.pack(fill='both')
         self.left_frame.pack(side="left", fill='y')
 
@@ -35,7 +40,7 @@ class Application(tk.Frame):
 
     def check_new_weight(self):
         last_weight = self.my_weight_reader.get_last_weight()
-        self.weight_label["text"] = last_weight
+        # self.weight_label["text"] = last_weight
         self.after(100, self.check_new_weight)
 
     def create_image_widgets(self):
