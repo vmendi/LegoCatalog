@@ -9,7 +9,7 @@ class weight_reader (threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.weight_lock = threading.Lock()
-        self.last_weight = Decimal(0)
+        self.last_weight = Decimal('0.0')
 
     def run(self):
         serial_port = None
