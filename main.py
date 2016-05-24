@@ -4,7 +4,7 @@ from decimal import Decimal
 import webbrowser
 
 from PIL import ImageTk
-from weight import get_by_weight_from_db_with_threshold, fetch_part_image
+from weight_from_db import get_by_weight_from_db_with_threshold, fetch_part_image
 from weight_serial_reader import WeightSerialReader
 
 
@@ -13,7 +13,7 @@ class Application(tk.Frame):
         tk.Frame.__init__(self, master)
         self.pack(fill="both")
 
-        self.current_weight = Decimal(0)
+        self.current_weight = Decimal('0')
         self.current_threshold = Decimal('0.02')
 
         # Top frame
@@ -56,12 +56,13 @@ class Application(tk.Frame):
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
         self.my_weight_reader.start()
-        self.after(100, self.check_new_weight)
+        self.check_new_weight_timer = self.after(100, self.check_new_weight)
 
     def testing_method(self):
         self.current_weight = Decimal('1.23')
         self.weight_label["text"] = self.current_weight
         self.create_image_widgets()
+        self.after_cancel(self.check_new_weight_timer)
 
     def on_plus_threshold_click(self):
         self.current_threshold += Decimal('0.01')
@@ -82,7 +83,7 @@ class Application(tk.Frame):
 
             self.create_image_widgets()
 
-        self.after(100, self.check_new_weight)
+        self.check_new_weight_timer = self.after(100, self.check_new_weight)
 
     def destroy_image_widgets(self):
         for widget in self.image_widgets:
