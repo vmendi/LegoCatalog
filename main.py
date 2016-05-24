@@ -5,7 +5,7 @@ import webbrowser
 
 from PIL import ImageTk
 from weight import get_by_weight_from_db_with_threshold, fetch_part_image
-from weight_reader import weight_reader
+from weight_serial_reader import WeightSerialReader
 
 
 class Application(tk.Frame):
@@ -54,7 +54,7 @@ class Application(tk.Frame):
         self.bottom_frame.pack(side="bottom", fill='x')
 
         # Configure weight reader new thread
-        self.my_weight_reader = weight_reader()
+        self.my_weight_reader = WeightSerialReader()
         self.my_weight_reader.start()
         self.after(100, self.check_new_weight)
 

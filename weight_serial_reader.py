@@ -4,8 +4,7 @@ from decimal import Decimal
 import serial
 
 
-class weight_reader (threading.Thread):
-
+class WeightSerialReader (threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.weight_lock = threading.Lock()
@@ -64,7 +63,7 @@ class weight_reader (threading.Thread):
     @staticmethod
     def scan_ports():
         print("Scanning ports...")
-        for n,s in weight_reader.scan():
+        for n,s in WeightSerialReader.scan():
             print("(%d) %s" % (n,s))
         print("Port scan done.")
 
