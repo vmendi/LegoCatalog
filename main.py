@@ -23,12 +23,12 @@ class Application(tk.Frame):
         self.plus_threshold = tk.Button(self.top_frame)
         self.plus_threshold["text"] = "+ threshold"
         self.plus_threshold["command"] = self.on_plus_threshold_click
-        self.plus_threshold.pack()
+        self.plus_threshold.pack(side='left')
 
         self.minus_threshold = tk.Button(self.top_frame)
         self.minus_threshold["text"] = "- threshold"
         self.minus_threshold["command"] = self.on_minus_threshold_click
-        self.minus_threshold.pack()
+        self.minus_threshold.pack(side='left')
 
         self.test = tk.Button(self.top_frame)
         self.test["text"] = "test"
