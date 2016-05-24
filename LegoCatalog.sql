@@ -135,7 +135,7 @@ select * from filtered_parts where weight > 100;
 # demas queries, especialmente la de peso que es la que mas nos interesa ahora mismo, 
 # dejo lo de arriba como referencia
 
-# Vistra filtrada que quita categorias que no nos gustan y piezas que no aparecen desde X year
+# Vista filtrada que quita categorias que no nos gustan y piezas que no aparecen desde X year
 create table filtered_parts as
 select parts.category_id, parts.category_name, parts.number, parts.name, parts.weight, parts.dimensions 
 	from parts
@@ -197,13 +197,19 @@ select SUM(distinct(inventories.part_number)
 	join sets on inventories.set_number = sets.number 
 	join filtered_parts on filtered_parts.number = inventories.part_number
 where sets.year >= 2006 and type = "P";
-	
+
+
+#----------------------------------------------------------------------------------------
 # Ranking segun cantidad de piezas en sets a partir de un anyo. Da una idea de la probabilidad de encontrarnos con una pieza. Solo
 # una idea, no conocemos cuantos sets se vendieron de cada.
-SELECT SUM(inventories.QTY), filtered_parts.number, filtered_parts.name, filtered_parts.weight, filtered_parts.category_name, filtered_parts.dimensions
+#
+# Esta tabla substituye a filtered_parts
+#
+create table filtered_parts_with_qty as
+SELECT SUM(inventories.qty) as total_qty, filtered_parts.*
 	from inventories 
 	join sets on inventories.set_number = sets.number
 	join filtered_parts on filtered_parts.number = inventories.part_number
 where sets.year >= 2000 and type = "P"
 group by filtered_parts.number
-order by sum(qty) desc;
+order by total_qty desc;
