@@ -1,12 +1,9 @@
 import tkinter as tk
 from tkinter import font
 from decimal import Decimal
-import webbrowser
-
-from PIL import ImageTk
-from weight_from_db import get_by_weight_from_db_with_threshold, fetch_part_image
 from weight_serial_reader import WeightSerialReader
 from part_info_frame import PartInfoFrame
+from part_images_grid import PartImagesGrid
 
 
 class Application(tk.Frame):
@@ -59,9 +56,11 @@ class Application(tk.Frame):
         self.center_frame = tk.Frame(self)
         self.center_frame.pack(fill='both', expand=1)
 
-        self.image_widgets = []
         self.images_frame = tk.Frame(self.center_frame)
-        self.images_frame.pack(side='top', fill='x')
+        self.images_frame.pack(side='top', fill='both', expand=1)
+
+        self.part_images_grid = PartImagesGrid(self.center_frame)
+        self.part_images_grid.pack(side='top', fill='both', expand=1)
 
         self.part_info = PartInfoFrame(self.center_frame)
         self.part_info.pack(side='bottom', anchor='w', fill='x', padx=5, pady=5)
@@ -69,23 +68,23 @@ class Application(tk.Frame):
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
         self.my_weight_reader.start()
-        self.check_new_weight_timer = self.after(100, self.check_new_weight)
+        self.check_new_weight_timer = self.after(10, self.check_new_weight)
 
     def testing_method(self):
-        self.current_weight = Decimal('1.23')
+        self.current_weight = Decimal('2.50')
         self.weight_label["text"] = self.current_weight
-        self.create_image_widgets()
+        self.part_images_grid.create_grid(self.current_weight, self.current_threshold, self.part_info)
         self.after_cancel(self.check_new_weight_timer)
 
     def on_plus_threshold_click(self):
         self.current_threshold += Decimal('0.01')
         self.threshold_label['text'] = self.current_threshold
-        self.create_image_widgets()
+        self.part_images_grid.create_grid(self.current_weight, self.current_threshold, self.part_info)
 
     def on_minus_threshold_click(self):
         self.current_threshold -= Decimal('0.01')
         self.threshold_label['text'] = self.current_threshold
-        self.create_image_widgets()
+        self.part_images_grid.create_grid(self.current_weight, self.current_threshold, self.part_info)
 
     def check_new_weight(self):
         current_weight = self.my_weight_reader.get_last_weight()
@@ -93,59 +92,9 @@ class Application(tk.Frame):
         if current_weight != self.current_weight:
             self.current_weight = current_weight
             self.weight_label["text"] = self.current_weight
+            self.part_images_grid.create_grid(self.current_weight, self.current_threshold, self.part_info)
 
-            self.create_image_widgets()
-
-        self.check_new_weight_timer = self.after(100, self.check_new_weight)
-
-    def destroy_image_widgets(self):
-        for widget in self.image_widgets:
-            widget.destroy()
-
-        self.image_widgets = []
-
-    def create_image_widgets(self):
-        self.destroy_image_widgets()
-
-        parts = get_by_weight_from_db_with_threshold(self.current_weight, self.current_threshold)
-
-        for part in parts:
-            new_frame = tk.Frame(self.images_frame)
-
-            new_frame.bind("<Enter>", lambda e, part=part: self.part_info.set_current_part(part))
-
-            new_image_label = self.create_image_label(part, new_frame)
-            new_image_label.pack()
-
-            # url link
-            new_url_label = tk.Label(new_frame, text=part['number'], fg='blue', cursor='draft_large',
-                                     font=font.Font(family="Helvetica", size=12))
-            new_url_label.pack()
-            url_link = 'http://alpha.bricklink.com/pages/clone/catalogitem.page?P=%s' % part['number']
-            self.bind_url_label(new_url_label, url_link)
-
-            # add to grid
-            new_frame.grid(row=int(len(self.image_widgets) / 10), column=int(len(self.image_widgets) % 10))
-            self.image_widgets.append(new_frame)
-
-    @staticmethod
-    def bind_url_label(the_label, the_url_link):
-        the_label.bind("<Button-1>", lambda event: webbrowser.open_new(the_url_link))
-
-
-    @staticmethod
-    def create_image_label(part, new_frame):
-        try:
-            part_image = fetch_part_image(part['number'])
-            image_tk = ImageTk.PhotoImage(part_image)
-
-            new_image_label = tk.Label(new_frame, image=image_tk)
-            new_image_label.image_tk = image_tk
-
-        except Exception as exc:
-            new_image_label = tk.Label(new_frame, text=part['number'])
-
-        return new_image_label
+        self.check_new_weight_timer = self.after(10, self.check_new_weight)
 
 
 def center_window(toplevel):
