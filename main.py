@@ -6,12 +6,13 @@ import webbrowser
 from PIL import ImageTk
 from weight_from_db import get_by_weight_from_db_with_threshold, fetch_part_image
 from weight_serial_reader import WeightSerialReader
+from part_info_frame import PartInfoFrame
 
 
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
-        self.pack(fill="both")
+        self.pack(fill="both", expand=1)
 
         self.current_weight = Decimal('0')
         self.current_threshold = Decimal('0.02')
@@ -20,38 +21,50 @@ class Application(tk.Frame):
         self.top_frame = tk.Frame(self)
         self.top_frame.pack(side="top", fill='x')
 
-        self.plus_threshold = tk.Button(self.top_frame)
-        self.plus_threshold["text"] = "+ threshold"
-        self.plus_threshold["command"] = self.on_plus_threshold_click
-        self.plus_threshold.pack(side='left')
-
-        self.minus_threshold = tk.Button(self.top_frame)
-        self.minus_threshold["text"] = "- threshold"
-        self.minus_threshold["command"] = self.on_minus_threshold_click
-        self.minus_threshold.pack(side='left')
-
         self.test = tk.Button(self.top_frame)
         self.test["text"] = "test"
         self.test["command"] = self.testing_method
         self.test.pack(side='right')
 
         # Left frame
-        self.left_frame = tk.Frame(self)
-        self.left_frame.pack(side="left", fill='y')
+        self.left_frame = tk.Frame(self, bd=1, relief='sunken')
+        self.left_frame.pack(side="left", fill='y', padx=5, pady=5)
 
         self.weight_label = tk.Label(self.left_frame, text=self.current_weight, width=6, anchor='e',
                                      font=font.Font(family="Helvetica", size=60),
                                      bg="#%02x%02x%02x" % (240, 240, 240))
-        self.weight_label.grid()
+        self.weight_label.grid(sticky='we')
 
-        self.threshold_label = tk.Label(self.left_frame, text=self.current_threshold, width=4, anchor='e',
+        self.threshold_buttons_frame = tk.Frame(self.left_frame)
+        self.threshold_buttons_frame.grid()
+
+        self.threshold_label = tk.Label(self.threshold_buttons_frame, text='Threshold: ')
+        self.threshold_label.pack(side='left')
+
+        self.threshold_label = tk.Label(self.threshold_buttons_frame, text=self.current_threshold, width=4, anchor='e',
                                         font=font.Font(family="Helvetica", size=20))
-        self.threshold_label.grid()
+        self.threshold_label.pack(side='left')
 
-        # Bottom frame
+        self.plus_threshold = tk.Button(self.threshold_buttons_frame)
+        self.plus_threshold["text"] = "+"
+        self.plus_threshold["command"] = self.on_plus_threshold_click
+        self.plus_threshold.pack(side='left')
+
+        self.minus_threshold = tk.Button(self.threshold_buttons_frame)
+        self.minus_threshold["text"] = "-"
+        self.minus_threshold["command"] = self.on_minus_threshold_click
+        self.minus_threshold.pack(side='left')
+
+        # Center Frame
+        self.center_frame = tk.Frame(self)
+        self.center_frame.pack(fill='both', expand=1)
+
         self.image_widgets = []
-        self.bottom_frame = tk.Frame(self)
-        self.bottom_frame.pack(side="bottom", fill='x')
+        self.images_frame = tk.Frame(self.center_frame)
+        self.images_frame.pack(side='top', fill='x')
+
+        self.part_info = PartInfoFrame(self.center_frame)
+        self.part_info.pack(side='bottom', anchor='w', fill='x', padx=5, pady=5)
 
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
@@ -97,13 +110,12 @@ class Application(tk.Frame):
         parts = get_by_weight_from_db_with_threshold(self.current_weight, self.current_threshold)
 
         for part in parts:
-            new_frame = tk.Frame(self.bottom_frame)
+            new_frame = tk.Frame(self.images_frame)
+
+            new_frame.bind("<Enter>", lambda e, part=part: self.part_info.set_current_part(part))
 
             new_image_label = self.create_image_label(part, new_frame)
             new_image_label.pack()
-
-            # new_weight_label = tk.Label(new_frame, text=str(part['weight'])+'g', font=font.Font(family="Helvetica", size=10))
-            # new_weight_label.pack()
 
             # url link
             new_url_label = tk.Label(new_frame, text=part['number'], fg='blue', cursor='draft_large',
