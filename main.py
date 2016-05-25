@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import font
 from decimal import Decimal
+from part_inventory_list import PartInventoryList
 from weight_serial_reader import WeightSerialReader
 from part_info_frame import PartInfoFrame
 from part_images_grid import PartImagesGrid
@@ -56,14 +57,15 @@ class Application(tk.Frame):
         self.center_frame = tk.Frame(self)
         self.center_frame.pack(fill='both', expand=1)
 
-        self.images_frame = tk.Frame(self.center_frame)
-        self.images_frame.pack(side='top', fill='both', expand=1)
-
         self.part_images_grid = PartImagesGrid(self.center_frame)
         self.part_images_grid.pack(side='top', fill='both', expand=1)
 
         self.part_info = PartInfoFrame(self.center_frame)
         self.part_info.pack(side='bottom', anchor='w', fill='x', padx=5, pady=5)
+
+        # Part inventory list (Right Frame)
+        self.right_frame = PartInventoryList(self)
+        self.pack(side='right', fill='y')
 
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
