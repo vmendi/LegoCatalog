@@ -17,21 +17,21 @@ class Application(tk.Frame):
 
         # Top frame
         self.top_frame = tk.Frame(self)
-        self.top_frame.pack(side="top", fill='x')
+        self.top_frame.grid(row=0, columnspan=3, sticky='we')
 
         self.test = tk.Button(self.top_frame)
         self.test["text"] = "test"
         self.test["command"] = self.testing_method
-        self.test.pack(side='right')
+        self.test.pack(side='left', padx=5)
 
         # Left frame
         self.left_frame = tk.Frame(self, bd=1, relief='sunken')
-        self.left_frame.pack(side="left", fill='y', padx=5, pady=5)
+        self.left_frame.grid(row=1, column=0, sticky='n', padx=5, pady=5)
 
         self.weight_label = tk.Label(self.left_frame, text=self.current_weight, width=6, anchor='e',
                                      font=font.Font(family="Helvetica", size=60),
                                      bg="#%02x%02x%02x" % (240, 240, 240))
-        self.weight_label.grid(sticky='we')
+        self.weight_label.grid()
 
         self.threshold_buttons_frame = tk.Frame(self.left_frame)
         self.threshold_buttons_frame.grid()
@@ -54,18 +54,18 @@ class Application(tk.Frame):
         self.minus_threshold.pack(side='left')
 
         # Center Frame
-        self.center_frame = tk.Frame(self)
-        self.center_frame.pack(fill='both', expand=1)
+        self.part_images_grid = PartImagesGrid(self)
+        self.part_images_grid.grid(row=1, column=1, sticky='nswe')
 
-        self.part_images_grid = PartImagesGrid(self.center_frame)
-        self.part_images_grid.pack(side='top', fill='both', expand=1)
+        self.part_info = PartInfoFrame(self)
+        self.part_info.grid(row=2, column=1, sticky='we', padx=5, pady=5)
 
-        self.part_info = PartInfoFrame(self.center_frame)
-        self.part_info.pack(side='bottom', anchor='w', fill='x', padx=5, pady=5)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(1, weight=1)
 
         # Part inventory list (Right Frame)
         self.right_frame = PartInventoryList(self)
-        self.pack(side='right', fill='y')
+        self.right_frame.grid(row=1, column=2, sticky='e')
 
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
