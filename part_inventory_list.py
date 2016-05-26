@@ -1,20 +1,32 @@
-import tkinter as tk
+from tkinter import *
 
 
-class PartInventoryList (tk.Frame):
+class PartInventoryList (Frame):
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg='green')
+        Frame.__init__(self, master, bd=1, relief='sunken')
 
-        # self.grid_rowconfigure(0, weight=1)
-        # self.grid_columnconfigure(0, weight=1)
-        #
-        # self.v_scrollbar = tk.Scrollbar(self, orient='vertical')
-        # self.v_scrollbar.grid(row=0, column=2, sticky='ns')
-        #
-        # self.canvas = tk.Canvas(self, bd=0, yscrollcommand=self.v_scrollbar.set)
-        # self.canvas.grid(row=0, column=0, sticky='nsew')
-        #
-        # self.v_scrollbar.config(command=self.canvas.yview)
+        self.canvas = Canvas(self)
 
-        self.label = tk.Label(self, text='Blah')
-        self.label.pack()
+        self.hbar = Scrollbar(self, orient=HORIZONTAL)
+        self.hbar.pack(side=BOTTOM, fill=X)
+        self.hbar.config(command=self.canvas.xview)
+
+        self.vbar=Scrollbar(self, orient=VERTICAL)
+        self.vbar.pack(side=RIGHT, fill=Y)
+        self.vbar.config(command=self.canvas.yview)
+
+        self.canvas.config(xscrollcommand=self.hbar.set, yscrollcommand=self.vbar.set)
+        self.canvas.pack(side=LEFT, expand=True, fill=BOTH)
+
+        self.inner_frame = Frame(self.canvas)
+        self.inner_frame.pack(expand=True, fill=BOTH)
+
+        self.canvas_window = self.canvas.create_window((0, 0), anchor='nw', window=self.inner_frame,
+                                                       tags="self.inner_frame")
+
+        self.inner_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+
+    def add_part(self, part):
+        new_label = Label(self.inner_frame, text=part['number'])
+        new_label.grid()

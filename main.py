@@ -26,7 +26,7 @@ class Application(tk.Frame):
 
         # Left frame
         self.left_frame = tk.Frame(self, bd=1, relief='sunken')
-        self.left_frame.grid(row=1, column=0, sticky='n', padx=5, pady=5)
+        self.left_frame.grid(row=1, column=0, sticky='n', padx=5, pady=10)
 
         self.weight_label = tk.Label(self.left_frame, text=self.current_weight, width=6, anchor='e',
                                      font=font.Font(family="Helvetica", size=60),
@@ -58,14 +58,14 @@ class Application(tk.Frame):
         self.part_images_grid.grid(row=1, column=1, sticky='nswe')
 
         self.part_info = PartInfoFrame(self)
-        self.part_info.grid(row=2, column=1, sticky='we', padx=5, pady=5)
+        self.part_info.grid(row=2, column=1, sticky='we', padx=5, pady=10)
 
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(1, weight=1)
 
         # Part inventory list (Right Frame)
         self.right_frame = PartInventoryList(self)
-        self.right_frame.grid(row=1, column=2, sticky='e')
+        self.right_frame.grid(row=1, column=2, rowspan=2, sticky='nse', padx=5, pady=10)
 
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     myapp.master.title("Lego Sorter")
     myapp.master.minsize(width=500, height=200)
 
-    root.geometry('{}x{}'.format(1125, 800))
+    root.geometry('{}x{}'.format(1400, 1000))
 
     center_window(root)
 
