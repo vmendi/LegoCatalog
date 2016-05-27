@@ -1,5 +1,6 @@
 from tkinter import *
 from blinker import signal
+import fetch_image
 
 
 class PartInventoryList (Frame):
@@ -30,5 +31,9 @@ class PartInventoryList (Frame):
         signal('on_mouse_click_part').connect(self.add_part)
 
     def add_part(self, sender, part):
+        grid_size = self.inner_frame.grid_size()
+        next_row_index = grid_size[1] + 1
+        new_image = fetch_image.create_image_label(part, self.inner_frame, 0.5)
+        new_image.grid(row = next_row_index, column=0, sticky='w')
         new_label = Label(self.inner_frame, text=part['number'])
-        new_label.grid(column=0, sticky='w')
+        new_label.grid(row = next_row_index, column=1, sticky='nsw')

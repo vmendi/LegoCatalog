@@ -5,10 +5,14 @@ import requests
 from PIL import Image, ImageTk, ImageDraw
 
 
-def create_image_label(part, parent):
+def create_image_label(part, parent, scale_factor=1.0):
     try:
-        part_image = _fetch_part_image(part['number'])
-        image_tk = ImageTk.PhotoImage(part_image)
+        image = _fetch_part_image(part['number'])
+
+        if scale_factor != 1:
+            image = image.resize((int(image.width * scale_factor), int(image.height * scale_factor)), Image.ANTIALIAS)
+
+        image_tk = ImageTk.PhotoImage(image)
 
         new_image_label = tk.Label(parent, image=image_tk)
         new_image_label.image_tk = image_tk
