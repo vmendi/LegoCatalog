@@ -1,4 +1,5 @@
 import tkinter as tk
+from blinker import signal
 
 
 class PartInfoFrame(tk.Frame):
@@ -40,7 +41,9 @@ class PartInfoFrame(tk.Frame):
         self.category_id = tk.Label(self, text='')
         self.category_id.grid(row=6, column=1, sticky='w')
 
-    def set_current_part(self, part):
+        signal('on_mouse_over_part').connect(self.set_current_part)
+
+    def set_current_part(self, sender, part):
         self.part_name['text'] = part['name']
         self.part_number['text'] = part['number']
         self.part_weight['text'] = part['weight']

@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import font
 from decimal import Decimal
+from blinker import signal
 from part_inventory_list import PartInventoryList
 from weight_serial_reader import WeightSerialReader
 from part_info_frame import PartInfoFrame
@@ -69,24 +70,24 @@ class Application(tk.Frame):
 
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
-        self.my_weight_reader.start()
+        # self.my_weight_reader.start()
         self.check_new_weight_timer = self.after(10, self.check_new_weight)
 
     def testing_method(self):
         self.current_weight = Decimal('2.50')
         self.weight_label["text"] = self.current_weight
-        self.part_images_grid.create_grid(self.current_weight, self.current_threshold, self.part_info)
+        self.part_images_grid.create_grid(self.current_weight, self.current_threshold)
         self.after_cancel(self.check_new_weight_timer)
 
     def on_plus_threshold_click(self):
         self.current_threshold += Decimal('0.01')
         self.threshold_label['text'] = self.current_threshold
-        self.part_images_grid.create_grid(self.current_weight, self.current_threshold, self.part_info)
+        self.part_images_grid.create_grid(self.current_weight, self.current_threshold)
 
     def on_minus_threshold_click(self):
         self.current_threshold -= Decimal('0.01')
         self.threshold_label['text'] = self.current_threshold
-        self.part_images_grid.create_grid(self.current_weight, self.current_threshold, self.part_info)
+        self.part_images_grid.create_grid(self.current_weight, self.current_threshold)
 
     def check_new_weight(self):
         current_weight = self.my_weight_reader.get_last_weight()
@@ -94,7 +95,7 @@ class Application(tk.Frame):
         if current_weight != self.current_weight:
             self.current_weight = current_weight
             self.weight_label["text"] = self.current_weight
-            self.part_images_grid.create_grid(self.current_weight, self.current_threshold, self.part_info)
+            self.part_images_grid.create_grid(self.current_weight, self.current_threshold)
 
         self.check_new_weight_timer = self.after(10, self.check_new_weight)
 

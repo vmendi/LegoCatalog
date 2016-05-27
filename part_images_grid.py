@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import font
 import webbrowser
 from PIL import ImageTk
+from blinker import signal
 from weight_from_db import get_by_weight_from_db_with_threshold, fetch_part_image
 
 
@@ -17,7 +18,7 @@ class PartImagesGrid (tk.Frame):
 
         self.image_widgets = []
 
-    def create_grid(self, current_weight, current_threshold, part_info):
+    def create_grid(self, current_weight, current_threshold):
         self.destroy_grid()
 
         parts = get_by_weight_from_db_with_threshold(current_weight, current_threshold)
@@ -25,7 +26,7 @@ class PartImagesGrid (tk.Frame):
         for part in parts:
             new_frame = tk.Frame(self)
 
-            new_frame.bind("<Enter>", lambda e, part=part: part_info.set_current_part(part))
+            new_frame.bind("<Enter>", lambda e, part=part: signal('on_mouse_over_part').send(self, part=part))
 
             new_image_label = self.create_image_label(part, new_frame)
             new_image_label.pack()
