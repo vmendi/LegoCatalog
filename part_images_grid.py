@@ -9,13 +9,6 @@ class PartImagesGrid (tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master)
 
-        # self.inner_frame = tk.Frame(self)
-        # self.inner_frame.pack(side='left', fill='both', expand=1)
-        #
-        # self.v_scrollbar = tk.Scrollbar(self, orient='vertical', command=self.yview)
-        # self.configure(yscrollcommand=self.v_scrollbar.set)
-        # self.v_scrollbar.pack(side='right', fill='y', expand=1)
-
         self.image_widgets = []
 
     def destroy_grid(self):
