@@ -31,4 +31,4 @@ class PartInventoryList (Frame):
 
     def add_part(self, sender, part):
         new_label = Label(self.inner_frame, text=part['number'])
-        new_label.grid()
+        new_label.grid(column=0, sticky='w')

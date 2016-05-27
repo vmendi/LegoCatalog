@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import font
-import webbrowser
-from PIL import ImageTk
 from blinker import signal
-from weight_from_db import get_by_weight_from_db_with_threshold, fetch_part_image
+import webbrowser
+import db
+import fetch_image
 
 
 class PartImagesGrid (tk.Frame):
@@ -21,13 +21,13 @@ class PartImagesGrid (tk.Frame):
     def create_grid(self, current_weight, current_threshold):
         self.destroy_grid()
 
-        parts = get_by_weight_from_db_with_threshold(current_weight, current_threshold)
+        parts = db.get_by_weight_from_db_with_threshold(current_weight, current_threshold)
 
         for part in parts:
             new_frame = tk.Frame(self)
 
             # Image
-            new_image_label = self.create_image_label(part, new_frame)
+            new_image_label = fetch_image.create_image_label(part, new_frame)
             new_image_label.pack()
 
             # URL link
@@ -44,18 +44,3 @@ class PartImagesGrid (tk.Frame):
             new_url_label.bind("<Button-1>", lambda e, u=url: webbrowser.open_new(u))
             new_frame.bind("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
             new_image_label.bind("<Button-1>", lambda e, p=part: signal('on_mouse_click_part').send(self, part=p))
-
-
-    @staticmethod
-    def create_image_label(part, new_frame):
-        try:
-            part_image = fetch_part_image(part['number'])
-            image_tk = ImageTk.PhotoImage(part_image)
-
-            new_image_label = tk.Label(new_frame, image=image_tk)
-            new_image_label.image_tk = image_tk
-
-        except Exception as exc:
-            new_image_label = tk.Label(new_frame, text=part['number'])
-
-        return new_image_label
