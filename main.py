@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import font
 from decimal import Decimal
-from blinker import signal
 from part_inventory_list import PartInventoryList
 from weight_serial_reader import WeightSerialReader
 from part_info_frame import PartInfoFrame

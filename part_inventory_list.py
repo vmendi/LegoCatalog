@@ -1,4 +1,5 @@
 from tkinter import *
+from blinker import signal
 
 
 class PartInventoryList (Frame):
@@ -26,7 +27,8 @@ class PartInventoryList (Frame):
 
         self.inner_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
 
+        signal('on_mouse_click_part').connect(self.add_part)
 
-    def add_part(self, part):
+    def add_part(self, sender, part):
         new_label = Label(self.inner_frame, text=part['number'])
         new_label.grid()

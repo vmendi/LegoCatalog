@@ -26,26 +26,24 @@ class PartImagesGrid (tk.Frame):
         for part in parts:
             new_frame = tk.Frame(self)
 
-            new_frame.bind("<Enter>", lambda e, part=part: signal('on_mouse_over_part').send(self, part=part))
-
+            # Image
             new_image_label = self.create_image_label(part, new_frame)
             new_image_label.pack()
 
-            # url link
+            # URL link
             new_url_label = tk.Label(new_frame, text=part['number'], fg='blue', cursor='draft_large',
                                      font=font.Font(family="Helvetica", size=12))
             new_url_label.pack()
-            url_link = 'http://alpha.bricklink.com/pages/clone/catalogitem.page?P=%s' % part['number']
-            self.bind_url_label(new_url_label, url_link)
 
-            # Add to grid. TODO: how to resize the grid dinamically
+            # Add to grid
             new_frame.grid(row=int(len(self.image_widgets) / 10), column=int(len(self.image_widgets) % 10))
             self.image_widgets.append(new_frame)
 
-
-    @staticmethod
-    def bind_url_label(the_label, the_url_link):
-        the_label.bind("<Button-1>", lambda event: webbrowser.open_new(the_url_link))
+            # Emit events
+            url = 'http://alpha.bricklink.com/pages/clone/catalogitem.page?P=%s' % part['number']
+            new_url_label.bind("<Button-1>", lambda e, u=url: webbrowser.open_new(u))
+            new_frame.bind("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
+            new_image_label.bind("<Button-1>", lambda e, p=part: signal('on_mouse_click_part').send(self, part=p))
 
 
     @staticmethod
