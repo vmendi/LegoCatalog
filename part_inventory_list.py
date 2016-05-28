@@ -56,11 +56,16 @@ class PartInventoryList (Frame):
         part_count = part_entry['count']
 
         new_image = fetch_image.create_image_label(part, self.inner_frame, 0.5)
-        new_image.grid(row=next_row_index, column=0, sticky='w', padx=5)
         new_number = Label(self.inner_frame, text=part['number'])
-        new_number.grid(row=next_row_index, column=1, sticky='w', padx=5)
         new_count = Label(self.inner_frame, text=part_count)
+
+        new_image.grid(row=next_row_index, column=0, padx=5)
+        new_number.grid(row=next_row_index, column=1, sticky='w', padx=5)
         new_count.grid(row=next_row_index, column=2)
+
+        new_image.bind( "<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
+        new_number.bind("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
+        new_count.bind( "<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
 
 
     def update_part_entry(self, part_entry):
