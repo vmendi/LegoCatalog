@@ -35,7 +35,7 @@ class PartInventoryList (Frame):
 
     def on_inner_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        self.canvas.itemconfig(self.canvas_window, width=self.canvas.winfo_width() - self.vbar.winfo_width())
+        self.canvas.itemconfig(self.canvas_window, width=self.canvas.winfo_width() - 7)
 
 
     def on_mouse_click_part(self, sender, part):
@@ -46,6 +46,17 @@ class PartInventoryList (Frame):
         else:
             self.update_part_entry(part_entry)
 
+    def on_button_plus_click(self, part_entry):
+        self.part_model.increase_part_entry(part_entry)
+        self.update_part_entry(part_entry)
+
+    def on_button_minus_click(self, part_entry):
+        erased = self.part_model.decrease_part_entry(part_entry)
+
+        if erased:
+            self.delete_part_entry(part_entry)
+        else:
+            self.update_part_entry(part_entry)
 
     def create_part_entry(self, part_entry):
         grid_size = self.inner_frame.grid_size()
@@ -63,24 +74,53 @@ class PartInventoryList (Frame):
         new_number.grid(row=next_row_index, column=1, sticky='w', padx=5)
         new_count.grid(row=next_row_index, column=2)
 
-        new_image.bind( "<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
+        new_image.bind ("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
         new_number.bind("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
-        new_count.bind( "<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
+        new_count.bind ("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
 
+        button_plus  = Button(self.inner_frame, text="+", command=lambda p=part_entry: self.on_button_plus_click(p))
+        button_minus = Button(self.inner_frame, text="-", command=lambda p=part_entry: self.on_button_minus_click(p))
+
+        button_plus.grid(row=next_row_index, column=3, sticky='e')
+        button_minus.grid(row=next_row_index, column=4, sticky='e')
+
+    def delete_part_entry(self, part_entry):
+        row_entry = self.find_row_entry(part_entry)
+        for widget in row_entry:
+            widget.grid_remove()
+            del widget
 
     def update_part_entry(self, part_entry):
+        row_entry = self.find_row_entry(part_entry)
+        row_entry[2]['text'] = part_entry['count']
+
+    def find_row_entry(self, part_entry):
         grid_size = self.inner_frame.grid_size()
 
         for row_index in range(grid_size[1]):
-            ui_entry = self.inner_frame.grid_slaves(row_index)
-            if len(ui_entry) > 0 and ui_entry[1]['text'] == part_entry['part']['number']:
-                ui_entry[0]['text'] = part_entry['count']
-                break
+            row_entry = self.inner_frame.grid_slaves(row_index)
+            if len(row_entry) > 0 and row_entry[3]['text'] == part_entry['part']['number']:
+                return row_entry
 
 
 class PartListModel:
     def __init__(self):
         self.part_entries = []
+
+    def increase_part_entry(self, part_entry):
+        assert part_entry in self.part_entries
+        part_entry['count'] += 1
+
+    def decrease_part_entry(self, part_entry):
+        erased = False
+        assert part_entry in self.part_entries
+        part_entry['count'] -= 1
+
+        if part_entry['count'] == 0:
+            self.part_entries.remove(part_entry)
+            erased = True
+
+        return erased
 
     def add_part_entry(self, part, color):
         part_entry = self.find_part_entry(part)
