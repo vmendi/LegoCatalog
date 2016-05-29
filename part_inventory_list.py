@@ -28,15 +28,21 @@ class PartInventoryList (Frame):
         self.canvas_window = self.canvas.create_window((0, 0), anchor='nw', window=self.inner_frame,
                                                        tags="self.inner_frame")
 
+        self.right_click_menu = Menu(self, tearoff=0)
+        self.right_click_menu.add_command(label="Add", command = self.on_menu_add_click)
+        self.right_click_menu.add_command(label="Remove", command = self.on_menu_remove_click)
+
         signal('on_mouse_click_part').connect(self.on_mouse_click_part)
 
         self.part_model = PartListModel()
-
 
     def on_inner_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
         self.canvas.itemconfig(self.canvas_window, width=self.canvas.winfo_width() - 7)
 
+    def on_right_button_click(self, event, part_entry):
+        self.part_model.selected_part_entry = part_entry
+        self.right_click_menu.post(event.x_root, event.y_root)
 
     def on_mouse_click_part(self, sender, part):
         part_entry = self.part_model.add_part_entry(part, None)
@@ -46,17 +52,17 @@ class PartInventoryList (Frame):
         else:
             self.update_part_entry(part_entry)
 
-    def on_button_plus_click(self, part_entry):
-        self.part_model.increase_part_entry(part_entry)
-        self.update_part_entry(part_entry)
+    def on_menu_add_click(self):
+        self.part_model.increase_part_entry(self.part_model.selected_part_entry)
+        self.update_part_entry(self.part_model.selected_part_entry)
 
-    def on_button_minus_click(self, part_entry):
-        erased = self.part_model.decrease_part_entry(part_entry)
+    def on_menu_remove_click(self):
+        erased = self.part_model.decrease_part_entry(self.part_model.selected_part_entry)
 
         if erased:
-            self.delete_part_entry(part_entry)
+            self.delete_part_entry(self.part_model.selected_part_entry)
         else:
-            self.update_part_entry(part_entry)
+            self.update_part_entry(self.part_model.selected_part_entry)
 
     def create_part_entry(self, part_entry):
         grid_size = self.inner_frame.grid_size()
@@ -71,18 +77,17 @@ class PartInventoryList (Frame):
         new_count = Label(self.inner_frame, text=part_count)
 
         new_image.grid(row=next_row_index, column=0, padx=5)
-        new_number.grid(row=next_row_index, column=1, sticky='w', padx=5)
+        new_number.grid(row=next_row_index, column=1, sticky='ew', padx=5)
         new_count.grid(row=next_row_index, column=2)
 
         new_image.bind ("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
         new_number.bind("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
         new_count.bind ("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
 
-        button_plus  = Button(self.inner_frame, text="+", command=lambda p=part_entry: self.on_button_plus_click(p))
-        button_minus = Button(self.inner_frame, text="-", command=lambda p=part_entry: self.on_button_minus_click(p))
+        new_image.bind ("<Button-2>", lambda e, p=part_entry: self.on_right_button_click(e, p))
+        new_number.bind("<Button-2>", lambda e, p=part_entry: self.on_right_button_click(e, p))
+        new_count.bind ("<Button-2>", lambda e, p=part_entry: self.on_right_button_click(e, p))
 
-        button_plus.grid(row=next_row_index, column=3, sticky='e')
-        button_minus.grid(row=next_row_index, column=4, sticky='e')
 
     def delete_part_entry(self, part_entry):
         row_entry = self.find_row_entry(part_entry)
@@ -92,20 +97,21 @@ class PartInventoryList (Frame):
 
     def update_part_entry(self, part_entry):
         row_entry = self.find_row_entry(part_entry)
-        row_entry[2]['text'] = part_entry['count']
+        row_entry[0]['text'] = part_entry['count']
 
     def find_row_entry(self, part_entry):
         grid_size = self.inner_frame.grid_size()
 
         for row_index in range(grid_size[1]):
             row_entry = self.inner_frame.grid_slaves(row_index)
-            if len(row_entry) > 0 and row_entry[3]['text'] == part_entry['part']['number']:
+            if len(row_entry) > 0 and row_entry[1]['text'] == part_entry['part']['number']:
                 return row_entry
 
 
 class PartListModel:
     def __init__(self):
         self.part_entries = []
+        self.selected_part_entry = {}
 
     def increase_part_entry(self, part_entry):
         assert part_entry in self.part_entries
