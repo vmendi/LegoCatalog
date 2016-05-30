@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import font
 from decimal import Decimal
+import webbrowser
+from color_picker import ColorPicker
+from blinker import signal
 from part_inventory_list import PartInventoryList
 from weight_serial_reader import WeightSerialReader
 from part_info_frame import PartInfoFrame
@@ -8,7 +11,7 @@ from part_images_grid import PartImagesGrid
 
 
 class Application(tk.Frame):
-    def __init__(self, master=None):
+    def __init__(self, master):
         tk.Frame.__init__(self, master)
         self.pack(fill="both", expand=1)
 
@@ -43,14 +46,10 @@ class Application(tk.Frame):
                                         font=font.Font(family="Helvetica", size=20))
         self.threshold_label.pack(side='left')
 
-        self.plus_threshold = tk.Button(self.threshold_buttons_frame)
-        self.plus_threshold["text"] = "+"
-        self.plus_threshold["command"] = self.on_plus_threshold_click
+        self.plus_threshold = tk.Button(self.threshold_buttons_frame, text="+", command = self.on_plus_threshold_click)
         self.plus_threshold.pack(side='left')
 
-        self.minus_threshold = tk.Button(self.threshold_buttons_frame)
-        self.minus_threshold["text"] = "-"
-        self.minus_threshold["command"] = self.on_minus_threshold_click
+        self.minus_threshold = tk.Button(self.threshold_buttons_frame, text="-", command = self.on_minus_threshold_click)
         self.minus_threshold.pack(side='left')
 
         # Center Frame
@@ -72,8 +71,28 @@ class Application(tk.Frame):
         # self.my_weight_reader.start()
         self.check_new_weight_timer = self.after(10, self.check_new_weight)
 
+        # Events
+        signal('on_mouse_click_part').connect(self.on_mouse_click_part)
+        signal('on_mouse_click_url').connect(self.on_mouse_click_url)
+
+
+    def on_mouse_click_part(self, sender, part):
+        # Get the parent widget (it has to be by name)
+        parent_str = self.winfo_parent()
+        parent = self.nametowidget(name=parent_str)
+
+        color_picker = ColorPicker(parent, part)
+        color_picker.place(relx=0.5, rely=0.5, relwidth=1, relheight=1, anchor='center')
+        #color_picker.place(relx=0.5, rely=0.5, anchor='center')
+
+
+    def on_mouse_click_url(self, sender, part):
+        url = 'http://alpha.bricklink.com/pages/clone/catalogitem.page?P=%s' % part['number']
+        webbrowser.open_new(url)
+
+
     def testing_method(self):
-        self.current_weight = Decimal('2.50')
+        self.current_weight = Decimal('0.80')
         self.weight_label["text"] = self.current_weight
         self.part_images_grid.create_grid(self.current_weight, self.current_threshold)
         self.after_cancel(self.check_new_weight_timer)

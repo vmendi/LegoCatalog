@@ -32,7 +32,7 @@ class PartInventoryList (Frame):
         self.right_click_menu.add_command(label="Add", command = self.on_menu_add_click)
         self.right_click_menu.add_command(label="Remove", command = self.on_menu_remove_click)
 
-        signal('on_mouse_click_part').connect(self.on_mouse_click_part)
+        signal('on_create_part_entry').connect(self.on_create_part_entry)
 
         self.part_model = PartListModel()
 
@@ -42,10 +42,10 @@ class PartInventoryList (Frame):
 
     def on_right_button_click(self, event, part_entry):
         self.part_model.selected_part_entry = part_entry
-        self.right_click_menu.post(event.x_root, event.y_root)
+        self.right_click_menu.post(event.x_root+1, event.y_root)
 
-    def on_mouse_click_part(self, sender, part):
-        part_entry = self.part_model.add_part_entry(part, None)
+    def on_create_part_entry(self, sender, part, part_color):
+        part_entry = self.part_model.add_part_entry(part, part_color['color_id'])
 
         if part_entry['count'] == 1:
             self.create_part_entry(part_entry)

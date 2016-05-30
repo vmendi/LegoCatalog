@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import font
 from blinker import signal
-import webbrowser
 import db
 import fetch_image
 
@@ -40,7 +39,6 @@ class PartImagesGrid (tk.Frame):
             self.image_widgets.append(new_frame)
 
             # Emit events
-            url = 'http://alpha.bricklink.com/pages/clone/catalogitem.page?P=%s' % part['number']
-            new_url_label.bind("<Button-1>", lambda e, u=url: webbrowser.open_new(u))
+            new_url_label.bind("<Button-1>", lambda e, p=part: signal('on_mouse_click_url').send(self, part=p))
             new_frame.bind("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
             new_image_label.bind("<Button-1>", lambda e, p=part: signal('on_mouse_click_part').send(self, part=p))
