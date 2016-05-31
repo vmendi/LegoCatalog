@@ -27,6 +27,16 @@ class Application(tk.Frame):
         self.test["command"] = self.testing_method
         self.test.pack(side='left', padx=5)
 
+        # Top level menu
+        self.menu_bar = tk.Menu(master)
+        master.config(menu=self.menu_bar)
+
+        self.menu_file = tk.Menu(self.menu_bar, tearoff=0)
+        self.menu_file.add_command(label="Open XML...", command = self.open_xml)
+        self.menu_file.add_command(label="Save As XML...", command = self.save_xml)
+
+        self.menu_bar.add_cascade(label="File", menu=self.menu_file)
+
         # Left frame
         self.left_frame = tk.Frame(self, bd=1, relief='sunken')
         self.left_frame.grid(row=1, column=0, sticky='n', padx=5, pady=10)
@@ -75,6 +85,11 @@ class Application(tk.Frame):
         signal('on_mouse_click_part').connect(self.on_mouse_click_part)
         signal('on_mouse_click_url').connect(self.on_mouse_click_url)
 
+    def open_xml(self):
+        print("TODO")
+
+    def save_xml(self):
+        print("TODO")
 
     def on_mouse_click_part(self, sender, part):
         # Get the parent widget (it has to be by name)
@@ -83,7 +98,6 @@ class Application(tk.Frame):
 
         color_picker = ColorPicker(parent, part)
         color_picker.place(relx=0.5, rely=0.5, relwidth=1, relheight=1, anchor='center')
-        #color_picker.place(relx=0.5, rely=0.5, anchor='center')
 
 
     def on_mouse_click_url(self, sender, part):
