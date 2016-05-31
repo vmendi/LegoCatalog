@@ -34,6 +34,8 @@ class PartInventoryList (Frame):
 
         signal('on_create_part_entry').connect(self.on_create_part_entry)
 
+        self.part_entry_widgets_map = {}
+
         self.part_model = PartListModel()
 
     def on_inner_frame_configure(self, event):
@@ -45,7 +47,7 @@ class PartInventoryList (Frame):
         self.right_click_menu.post(event.x_root+1, event.y_root)
 
     def on_create_part_entry(self, sender, part, part_color):
-        part_entry = self.part_model.add_part_entry(part, part_color['color_id'])
+        part_entry = self.part_model.add_part_entry(part, part_color)
 
         if part_entry['count'] == 1:
             self.create_part_entry(part_entry)
@@ -65,47 +67,44 @@ class PartInventoryList (Frame):
             self.update_part_entry(self.part_model.selected_part_entry)
 
     def create_part_entry(self, part_entry):
-        grid_size = self.inner_frame.grid_size()
+        assert PartListModel.part_entry_hash(part_entry) not in self.part_entry_widgets_map
 
-        next_row_index = grid_size[1] + 1
+        next_row_index = self.inner_frame.grid_size()[1] + 1
 
         part = part_entry['part']
-        part_count = part_entry['count']
+        part_color = part_entry['part_color']
 
-        new_image = fetch_image.create_image_label(part, self.inner_frame, 0.5)
-        new_number = Label(self.inner_frame, text=part['number'])
-        new_count = Label(self.inner_frame, text=part_count)
+        part_entry_widgets = {
+            'image': fetch_image.create_image_label(part, self.inner_frame, 0.5),
+            'numba': Label(self.inner_frame, text=part['number']),
+            'color': Label(self.inner_frame, text=part_color['color_name']),
+            'count': Label(self.inner_frame, text=part_entry['count'])
+        }
 
-        new_image.grid(row=next_row_index, column=0, padx=5)
-        new_number.grid(row=next_row_index, column=1, sticky='ew', padx=5)
-        new_count.grid(row=next_row_index, column=2)
+        part_entry_widgets['image'].grid(row=next_row_index, column=0, padx=5)
+        part_entry_widgets['numba'].grid(row=next_row_index, column=1, sticky='ew', padx=5)
+        part_entry_widgets['color'].grid(row=next_row_index, column=2, sticky='ew', padx=5)
+        part_entry_widgets['count'].grid(row=next_row_index, column=3)
 
-        new_image.bind ("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
-        new_number.bind("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
-        new_count.bind ("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
+        self.part_entry_widgets_map[PartListModel.part_entry_hash(part_entry)] = part_entry_widgets
 
-        new_image.bind ("<Button-2>", lambda e, p=part_entry: self.on_right_button_click(e, p))
-        new_number.bind("<Button-2>", lambda e, p=part_entry: self.on_right_button_click(e, p))
-        new_count.bind ("<Button-2>", lambda e, p=part_entry: self.on_right_button_click(e, p))
-
+        for widget in part_entry_widgets.values():
+            widget.bind("<Enter>",    lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
+            widget.bind("<Button-2>", lambda e, p=part_entry: self.on_right_button_click(e, p))
 
     def delete_part_entry(self, part_entry):
-        row_entry = self.find_row_entry(part_entry)
-        for widget in row_entry:
+        part_entry_widgets = self.part_entry_widgets_map[PartListModel.part_entry_hash(part_entry)]
+
+        for widget in part_entry_widgets.values():
             widget.grid_remove()
             del widget
 
+        del self.part_entry_widgets_map[PartListModel.part_entry_hash(part_entry)]
+
+
     def update_part_entry(self, part_entry):
-        row_entry = self.find_row_entry(part_entry)
-        row_entry[0]['text'] = part_entry['count']
-
-    def find_row_entry(self, part_entry):
-        grid_size = self.inner_frame.grid_size()
-
-        for row_index in range(grid_size[1]):
-            row_entry = self.inner_frame.grid_slaves(row_index)
-            if len(row_entry) > 0 and row_entry[1]['text'] == part_entry['part']['number']:
-                return row_entry
+        part_entry_widgets = self.part_entry_widgets_map[PartListModel.part_entry_hash(part_entry)]
+        part_entry_widgets['count']['text'] = part_entry['count']
 
 
 class PartListModel:
@@ -128,28 +127,26 @@ class PartListModel:
 
         return erased
 
-    def add_part_entry(self, part, color):
-        part_entry = self.find_part_entry(part)
+    def add_part_entry(self, part, part_color):
+        part_entry = self.find_part_entry(part['number'], part_color['color_id'])
 
         if part_entry:
             part_entry['count'] += 1
         else:
             part_entry = dict(part=part,
                               count=1,
-                              color="blah")
+                              part_color=part_color)
 
             self.part_entries.append(part_entry)
 
         return part_entry
 
-    def find_part_entry(self, part):
+    def find_part_entry(self, part_number, part_color_id):
         for part_entry in self.part_entries:
-            if part['number'] == part_entry['part']['number']:
+            if part_number == part_entry['part']['number'] and part_color_id == part_entry['part_color']['color_id']:
                 return part_entry
         return None
 
-    def contains_part(self, part):
-        for part_entry in self.part_entries:
-            if part['number'] == part_entry['part']['number']:
-                return True
-        return False
+    @staticmethod
+    def part_entry_hash(part_entry):
+        return part_entry['part']['number'] + " " + part_entry['part_color']['color_name']
