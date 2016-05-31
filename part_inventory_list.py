@@ -1,7 +1,7 @@
 from tkinter import *
 from blinker import signal
+from color_picker import ColorPicker
 import fetch_image
-
 
 class PartInventoryList (Frame):
     def __init__(self, master):
@@ -22,7 +22,7 @@ class PartInventoryList (Frame):
 
         self.inner_frame = Frame(self.canvas)
         self.inner_frame.grid()
-        self.inner_frame.grid_columnconfigure(1, weight=1)
+        self.inner_frame.grid_columnconfigure(2, weight=1)
         self.inner_frame.bind("<Configure>", self.on_inner_frame_configure)
 
         self.canvas_window = self.canvas.create_window((0, 0), anchor='nw', window=self.inner_frame,
@@ -78,13 +78,15 @@ class PartInventoryList (Frame):
             'image': fetch_image.create_part_image_label(part, self.inner_frame, 0.5),
             'numba': Label(self.inner_frame, text=part['number']),
             'color': Label(self.inner_frame, text=part_color['color_name']),
-            'count': Label(self.inner_frame, text=part_entry['count'])
+            'count': Label(self.inner_frame, text=part_entry['count']),
+            'color_image': ColorPicker.create_part_color_label(self.inner_frame, (16, 32), part_color['rgb'])
         }
 
         part_entry_widgets['image'].grid(row=next_row_index, column=0, padx=5)
-        part_entry_widgets['numba'].grid(row=next_row_index, column=1, sticky='ew', padx=5)
-        part_entry_widgets['color'].grid(row=next_row_index, column=2, sticky='ew', padx=5)
-        part_entry_widgets['count'].grid(row=next_row_index, column=3)
+        part_entry_widgets['color_image'].grid(row=next_row_index, column=1, sticky='w')
+        part_entry_widgets['color'].grid(row=next_row_index, column=2, sticky='w')
+        part_entry_widgets['numba'].grid(row=next_row_index, column=3, sticky='w', padx=5)
+        part_entry_widgets['count'].grid(row=next_row_index, column=4)
 
         self.part_entry_widgets_map[PartListModel.part_entry_hash(part_entry)] = part_entry_widgets
 
@@ -105,6 +107,7 @@ class PartInventoryList (Frame):
     def update_part_entry(self, part_entry):
         part_entry_widgets = self.part_entry_widgets_map[PartListModel.part_entry_hash(part_entry)]
         part_entry_widgets['count']['text'] = part_entry['count']
+
 
 
 class PartListModel:

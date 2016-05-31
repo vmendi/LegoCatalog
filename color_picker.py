@@ -21,18 +21,13 @@ class ColorPicker (Frame):
             color_frame = Frame(self.inner_frame)
             color_frame.grid(row = int(index / self.COLUMN_COUNT), column = int(index % self.COLUMN_COUNT), pady=5)
 
-            image = Image.new('RGB', size=(128, 128), color = "#" + part_color['rgb'])
-            image_tk = ImageTk.PhotoImage(image)
+            new_color_label = ColorPicker.create_part_color_label(color_frame, (128, 128), part_color['rgb'])
+            new_text_label = Label(color_frame, text = part_color['color_name'])
 
-            new_image_label = Label(color_frame, image=image_tk)
-            new_image_label.image_tk = image_tk
+            new_color_label.pack()
+            new_text_label.pack()
 
-            new_label = Label(color_frame, text = part_color['color_name'])
-
-            new_image_label.pack()
-            new_label.pack()
-
-            new_image_label.bind("<Button-1>", lambda e, p=part_color: self.on_create_part_entry(for_part, p))
+            new_color_label.bind("<Button-1>", lambda e, p=part_color: self.on_create_part_entry(for_part, p))
 
         cancel_button = Button(self.inner_frame, text = "Cancel", command = self.close)
         cancel_button.grid(row = int(len(colors) / self.COLUMN_COUNT) + 1, columnspan=self.COLUMN_COUNT)
@@ -45,3 +40,12 @@ class ColorPicker (Frame):
     def close(self):
         self.place_forget()
         del self
+
+
+    @staticmethod
+    def create_part_color_label(parent, size, part_color_rgb):
+        image = Image.new('RGB', size=size, color = "#" + part_color_rgb)
+        image_tk = ImageTk.PhotoImage(image)
+        new_image_label = Label(parent, image=image_tk)
+        new_image_label.image_tk = image_tk
+        return new_image_label
