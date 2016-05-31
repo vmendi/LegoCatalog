@@ -26,7 +26,7 @@ class PartImagesGrid (tk.Frame):
             new_frame = tk.Frame(self)
 
             # Image
-            new_image_label = fetch_image.create_image_label(part, new_frame)
+            new_image_label = fetch_image.create_part_image_label(part, new_frame)
             new_image_label.pack()
 
             # URL link

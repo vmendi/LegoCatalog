@@ -75,7 +75,7 @@ class PartInventoryList (Frame):
         part_color = part_entry['part_color']
 
         part_entry_widgets = {
-            'image': fetch_image.create_image_label(part, self.inner_frame, 0.5),
+            'image': fetch_image.create_part_image_label(part, self.inner_frame, 0.5),
             'numba': Label(self.inner_frame, text=part['number']),
             'color': Label(self.inner_frame, text=part_color['color_name']),
             'count': Label(self.inner_frame, text=part_entry['count'])

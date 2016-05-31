@@ -5,7 +5,7 @@ import requests
 from PIL import Image, ImageTk, ImageDraw
 
 
-def create_image_label(part, parent, scale_factor=1.0):
+def create_part_image_label(part, parent, scale_factor=1.0):
     try:
         image = _fetch_part_image(part['number'])
 
