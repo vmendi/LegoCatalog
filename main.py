@@ -1,15 +1,16 @@
 from tkinter import *
 from tkinter.filedialog import asksaveasfilename
-
-from blinker import signal
 import webbrowser
+from decimal import Decimal
 
+from options_panel import OptionsPanel
+from blinker import signal
 from color_picker import ColorPicker
-from part_entry_model import PartEntryModel
 from part_inventory_list import PartInventoryList
 from part_info_frame import PartInfoFrame
 from part_images_grid import PartImagesGrid
 from weight_panel import WeightPanel
+from model import Model
 
 
 class Application(Frame):
@@ -17,7 +18,7 @@ class Application(Frame):
         Frame.__init__(self, master)
         self.pack(fill="both", expand=1)
 
-        self.part_entry_model = PartEntryModel()
+        self.model = Model()
 
         # Top level menu
         self.menu_bar = Menu(master)
@@ -29,8 +30,12 @@ class Application(Frame):
         self.menu_bar.add_cascade(label="File", menu=self.menu_file)
 
         # Weight Panel (Left frame)
-        self.weight_panel = WeightPanel(self)
+        self.weight_panel = WeightPanel(self, self.model)
         self.weight_panel.grid(row=0, column=0, sticky='n', padx=5, pady=10)
+
+        # Options Panel
+        self.options_panel = OptionsPanel(self, self.model)
+        self.options_panel.grid(row=1, column=0, sticky='wes', padx=5, pady=10)
 
         # Center Frame
         self.part_images_grid = PartImagesGrid(self)
@@ -43,7 +48,7 @@ class Application(Frame):
         self.grid_rowconfigure(0, weight=1)
 
         # Part inventory list (Right Frame)
-        self.right_frame = PartInventoryList(self, self.part_entry_model)
+        self.right_frame = PartInventoryList(self, self.model.part_entry_list)
         self.right_frame.grid(row=0, column=2, rowspan=2, sticky='nse', padx=5, pady=10)
 
         # Events
@@ -52,6 +57,19 @@ class Application(Frame):
         signal('on_new_weight').connect(self.on_new_weight)
         signal('on_create_part_entry').connect(self.on_create_part_entry)
         signal('on_mouse_over_part').connect(self.on_mouse_over_part)
+        signal('on_test_01').connect(self.on_test_01)
+
+        self.check_new_weight_timer = self.after(10, self.check_new_weight)
+
+    def on_test_01(self, sender):
+        self.after_cancel(self.check_new_weight_timer)
+        self.model.set_current_weight(weight=Decimal('0.80'), threshold=Decimal('0.02'))
+
+
+    def check_new_weight(self):
+        self.model.check_new_weight()
+        self.check_new_weight_timer = self.after(10, self.check_new_weight)
+
 
     def save_xml(self):
         name = asksaveasfilename(initialdir="data/",
@@ -59,7 +77,7 @@ class Application(Frame):
                                  defaultextension='xml',
                                  title = "Choose a file name to save")
         if name:
-            self.part_entry_model.save_xml(name)
+            self.model.part_entry_list.save_xml(name)
 
 
     def on_create_part_entry(self, sender, part, part_color):

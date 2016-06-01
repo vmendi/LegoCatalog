@@ -1,4 +1,39 @@
+from decimal import Decimal
+from blinker import signal
 from lxml import etree
+from weight_serial_reader import WeightSerialReader
+
+
+class Model:
+    def __init__(self):
+        self.part_entry_list = PartEntryList()
+
+        self.current_weight = Decimal('0.0')
+        self.current_threshold = Decimal('0.02')
+
+        # Configure weight reader new thread
+        self.my_weight_reader = WeightSerialReader()
+        self.my_weight_reader.start()
+
+    def increase_threshold(self):
+        self.current_threshold += Decimal('0.01')
+        signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
+
+    def decrease_threshold(self):
+        self.current_threshold -= Decimal('0.01')
+        signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
+
+    def set_current_weight(self, weight, threshold):
+        self.current_weight = weight
+        self.current_threshold = threshold
+        signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
+
+    def check_new_weight(self):
+        next_weight = self.my_weight_reader.get_last_weight()
+
+        if next_weight != self.current_weight:
+            self.current_weight = next_weight
+            signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
 
 class PartEntry:
     def __init__(self, part, part_color, count):
@@ -9,7 +44,8 @@ class PartEntry:
     def hash(self):
         return self.part['number'] + " " + self.part_color['color_name']
 
-class PartEntryModel:
+
+class PartEntryList:
     def __init__(self):
         self.part_entries = []
         self.selected_part_entry = {}

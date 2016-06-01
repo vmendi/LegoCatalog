@@ -7,24 +7,23 @@ from weight_serial_reader import WeightSerialReader
 
 
 class WeightPanel (Frame):
-    def __init__(self, master):
+    def __init__(self, master, model):
         Frame.__init__(self, master, bd=1, relief='sunken')
 
-        self.current_weight = Decimal('0.0')
-        self.current_threshold = Decimal('0.02')
+        self.model = model
 
-        self.weight_label = Label(self, text=self.current_weight, width=6, anchor='e',
+        self.weight_label = Label(self, text=model.current_weight, width=6, anchor='e',
                                   font=font.Font(family="Helvetica", size=60),
                                   bg="#%02x%02x%02x" % (240, 240, 240))
-        self.weight_label.grid()
+        self.weight_label.grid(row=0, column=0)
 
         self.threshold_buttons_frame = Frame(self)
-        self.threshold_buttons_frame.grid()
+        self.threshold_buttons_frame.grid(row=1, column=0, sticky='w')
 
         self.threshold_label = Label(self.threshold_buttons_frame, text='Threshold: ')
         self.threshold_label.pack(side='left')
 
-        self.threshold_value = Label(self.threshold_buttons_frame, text=self.current_threshold, width=4, anchor='w',
+        self.threshold_value = Label(self.threshold_buttons_frame, text=model.current_threshold, width=4, anchor='w',
                                      font=font.Font(family="Helvetica", size=20))
         self.threshold_value.pack(side='left')
 
@@ -34,38 +33,14 @@ class WeightPanel (Frame):
         self.minus_threshold = Button(self.threshold_buttons_frame, text="-", command = self.on_minus_threshold_click)
         self.minus_threshold.pack(side='left')
 
-        if sys.gettrace():
-            self.test = Button(self, text = "test", command = self.testing_method)
-            self.test.grid()
+        signal('on_new_weight').connect(self.on_new_weight)
 
-        # Configure weight reader new thread
-        self.my_weight_reader = WeightSerialReader()
-        # self.my_weight_reader.start()
-        self.check_new_weight_timer = self.after(10, self.check_new_weight)
+    def on_new_weight(self, sender, weight, threshold):
+        self.weight_label["text"] = weight
+        self.threshold_value['text'] = threshold
 
     def on_plus_threshold_click(self):
-        self.current_threshold += Decimal('0.01')
-        self.threshold_value['text'] = self.current_threshold
-        signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
+        self.model.increase_threshold()
 
     def on_minus_threshold_click(self):
-        self.current_threshold -= Decimal('0.01')
-        self.threshold_value['text'] = self.current_threshold
-        signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
-
-    def check_new_weight(self):
-        current_weight = self.my_weight_reader.get_last_weight()
-
-        if current_weight != self.current_weight:
-            self.current_weight = current_weight
-            self.weight_label["text"] = self.current_weight
-            signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
-
-        self.check_new_weight_timer = self.after(10, self.check_new_weight)
-
-
-    def testing_method(self):
-        self.current_weight = Decimal('0.80')
-        self.weight_label["text"] = self.current_weight
-        signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
-        self.after_cancel(self.check_new_weight_timer)
+        self.model.decrease_threshold()
