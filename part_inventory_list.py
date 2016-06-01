@@ -33,8 +33,6 @@ class PartInventoryList (Frame):
         self.right_click_menu.add_command(label="Add", command = self.on_menu_add_click)
         self.right_click_menu.add_command(label="Remove", command = self.on_menu_remove_click)
 
-        signal('on_create_part_entry').connect(self.on_create_part_entry)
-
         self.part_entry_widgets_map = {}
         self.part_model = part_entry_model
 
@@ -47,7 +45,7 @@ class PartInventoryList (Frame):
         self.part_model.selected_part_entry = part_entry
         self.right_click_menu.post(event.x_root+1, event.y_root)
 
-    def on_create_part_entry(self, sender, part, part_color):
+    def add_part_entry(self, part, part_color):
         part_entry = self.part_model.add_part_entry(part, part_color)
 
         if part_entry.count == 1:

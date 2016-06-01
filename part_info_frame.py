@@ -41,9 +41,7 @@ class PartInfoFrame(Frame):
         self.category_id = Label(self, text='')
         self.category_id.grid(row=6, column=1, sticky='w')
 
-        signal('on_mouse_over_part').connect(self.set_current_part)
-
-    def set_current_part(self, sender, part):
+    def set_current_part(self, part):
         self.part_name['text'] = part['name']
         self.part_number['text'] = part['number']
         self.part_weight['text'] = part['weight']
