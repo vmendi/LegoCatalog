@@ -34,8 +34,9 @@ class WeightPanel (Frame):
         self.minus_threshold = Button(self.threshold_buttons_frame, text="-", command = self.on_minus_threshold_click)
         self.minus_threshold.pack(side='left')
 
-        self.test = Button(self, text = "test", command = self.testing_method)
-        self.test.grid()
+        if sys.gettrace():
+            self.test = Button(self, text = "test", command = self.testing_method)
+            self.test.grid()
 
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()

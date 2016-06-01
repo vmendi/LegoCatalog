@@ -1,11 +1,8 @@
 from tkinter import *
-from tkinter import ttk
-from tkinter import font
-
-import webbrowser
+from tkinter.filedialog import asksaveasfilename
 
 from blinker import signal
-from decimal import Decimal
+import webbrowser
 
 from color_picker import ColorPicker
 from part_entry_model import PartEntryModel
@@ -27,7 +24,6 @@ class Application(Frame):
         master.config(menu=self.menu_bar)
 
         self.menu_file = Menu(self.menu_bar, tearoff=0)
-        self.menu_file.add_command(label="Open XML...", command = self.open_xml)
         self.menu_file.add_command(label="Save As XML...", command = self.save_xml)
 
         self.menu_bar.add_cascade(label="File", menu=self.menu_file)
@@ -38,7 +34,7 @@ class Application(Frame):
 
         # Center Frame
         self.part_images_grid = PartImagesGrid(self)
-        self.part_images_grid.grid(row=0, column=1, sticky='nswe')
+        self.part_images_grid.grid(row=0, column=1, sticky='nswe', pady=10)
 
         self.part_info = PartInfoFrame(self)
         self.part_info.grid(row=1, column=1, sticky='we', padx=5, pady=10)
@@ -57,11 +53,14 @@ class Application(Frame):
         signal('on_create_part_entry').connect(self.on_create_part_entry)
         signal('on_mouse_over_part').connect(self.on_mouse_over_part)
 
-    def open_xml(self):
-        print("TODO")
-
     def save_xml(self):
-        print("TODO")
+        name = asksaveasfilename(initialdir="data/",
+                                 initialfile="default.xml",
+                                 defaultextension='xml',
+                                 title = "Choose a file name to save")
+        if name:
+            self.part_entry_model.save_xml(name)
+
 
     def on_create_part_entry(self, sender, part, part_color):
         self.right_frame.add_part_entry(part, part_color)
