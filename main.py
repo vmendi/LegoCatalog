@@ -1,9 +1,13 @@
-import tkinter as tk
+from tkinter import *
+from tkinter import ttk
 from tkinter import font
-from decimal import Decimal
+
 import webbrowser
-from color_picker import ColorPicker
+
 from blinker import signal
+from decimal import Decimal
+
+from color_picker import ColorPicker
 from part_entry_model import PartEntryModel
 from part_inventory_list import PartInventoryList
 from weight_serial_reader import WeightSerialReader
@@ -11,9 +15,9 @@ from part_info_frame import PartInfoFrame
 from part_images_grid import PartImagesGrid
 
 
-class Application(tk.Frame):
+class Application(Frame):
     def __init__(self, master):
-        tk.Frame.__init__(self, master)
+        Frame.__init__(self, master)
         self.pack(fill="both", expand=1)
 
         self.current_weight = Decimal('0')
@@ -22,47 +26,47 @@ class Application(tk.Frame):
         self.part_entry_model = PartEntryModel()
 
         # Top frame
-        self.top_frame = tk.Frame(self)
+        self.top_frame = Frame(self)
         self.top_frame.grid(row=0, columnspan=3, sticky='we')
 
-        self.test = tk.Button(self.top_frame)
+        self.test = Button(self.top_frame)
         self.test["text"] = "test"
         self.test["command"] = self.testing_method
         self.test.pack(side='left', padx=5)
 
         # Top level menu
-        self.menu_bar = tk.Menu(master)
+        self.menu_bar = Menu(master)
         master.config(menu=self.menu_bar)
 
-        self.menu_file = tk.Menu(self.menu_bar, tearoff=0)
+        self.menu_file = Menu(self.menu_bar, tearoff=0)
         self.menu_file.add_command(label="Open XML...", command = self.open_xml)
         self.menu_file.add_command(label="Save As XML...", command = self.save_xml)
 
         self.menu_bar.add_cascade(label="File", menu=self.menu_file)
 
         # Left frame
-        self.left_frame = tk.Frame(self, bd=1, relief='sunken')
+        self.left_frame = Frame(self, bd=1, relief='sunken')
         self.left_frame.grid(row=1, column=0, sticky='n', padx=5, pady=10)
 
-        self.weight_label = tk.Label(self.left_frame, text=self.current_weight, width=6, anchor='e',
+        self.weight_label = Label(self.left_frame, text=self.current_weight, width=6, anchor='e',
                                      font=font.Font(family="Helvetica", size=60),
                                      bg="#%02x%02x%02x" % (240, 240, 240))
         self.weight_label.grid()
 
-        self.threshold_buttons_frame = tk.Frame(self.left_frame)
+        self.threshold_buttons_frame = Frame(self.left_frame)
         self.threshold_buttons_frame.grid()
 
-        self.threshold_label = tk.Label(self.threshold_buttons_frame, text='Threshold: ')
+        self.threshold_label = Label(self.threshold_buttons_frame, text='Threshold: ')
         self.threshold_label.pack(side='left')
 
-        self.threshold_label = tk.Label(self.threshold_buttons_frame, text=self.current_threshold, width=4, anchor='e',
+        self.threshold_label = Label(self.threshold_buttons_frame, text=self.current_threshold, width=4, anchor='e',
                                         font=font.Font(family="Helvetica", size=20))
         self.threshold_label.pack(side='left')
 
-        self.plus_threshold = tk.Button(self.threshold_buttons_frame, text="+", command = self.on_plus_threshold_click)
+        self.plus_threshold = Button(self.threshold_buttons_frame, text="+", command = self.on_plus_threshold_click)
         self.plus_threshold.pack(side='left')
 
-        self.minus_threshold = tk.Button(self.threshold_buttons_frame, text="-", command = self.on_minus_threshold_click)
+        self.minus_threshold = Button(self.threshold_buttons_frame, text="-", command = self.on_minus_threshold_click)
         self.minus_threshold.pack(side='left')
 
         # Center Frame
@@ -104,8 +108,7 @@ class Application(tk.Frame):
 
 
     def on_mouse_click_url(self, sender, part):
-        url = 'http://alpha.bricklink.com/pages/clone/catalogitem.page?P=%s' % part['number']
-        webbrowser.open_new(url)
+        webbrowser.open_new('http://alpha.bricklink.com/pages/clone/catalogitem.page?P=%s' % part['number'])
 
 
     def testing_method(self):
@@ -146,7 +149,7 @@ def center_window(toplevel):
 
 
 if __name__ == '__main__':
-    root = tk.Tk()
+    root = Tk()
 
     myapp = Application(master=root)
     myapp.master.title("Lego Sorter")

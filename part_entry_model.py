@@ -1,3 +1,5 @@
+from lxml import etree
+
 class PartEntry:
     def __init__(self, part, part_color, count):
         self.part = part
@@ -16,6 +18,8 @@ class PartEntryModel:
         assert part_entry in self.part_entries
         part_entry.count += 1
 
+        self.save_xml('data/_backup.xml')
+
     def decrease_part_entry(self, part_entry):
         erased = False
         assert part_entry in self.part_entries
@@ -24,6 +28,8 @@ class PartEntryModel:
         if part_entry.count == 0:
             self.part_entries.remove(part_entry)
             erased = True
+
+        self.save_xml('data/_backup.xml')
 
         return erased
 
@@ -36,6 +42,8 @@ class PartEntryModel:
             part_entry_ret = PartEntry(part, part_color, 1)
             self.part_entries.append(part_entry_ret)
 
+        self.save_xml('data/_backup.xml')
+
         return part_entry_ret
 
     def find_part_entry(self, part_number, part_color_id):
@@ -43,3 +51,32 @@ class PartEntryModel:
             if part_number == part_entry.part['number'] and part_color_id == part_entry.part_color['color_id']:
                 return part_entry
         return None
+
+    def save_xml(self, file_name):
+        inventory = etree.Element('INVENTORY')
+
+        for part_entry in self.part_entries:
+
+            item = etree.SubElement(inventory, 'ITEM')
+
+            item_id = etree.SubElement(item, 'ITEMID')
+            item_id.text = part_entry.part['number']
+
+            color = etree.SubElement(item, 'COLOR')
+            color.text = str(part_entry.part_color['color_id'])
+
+            category = etree.SubElement(item, 'CATEGORY')
+            category.text = str(part_entry.part['category_id'])
+
+            qty = etree.SubElement(item, 'QTY')
+            qty.text = str(part_entry.count)
+
+            item_type = etree.SubElement(item, 'ITEMTYPE')
+            item_type.text = 'P'
+
+            condition = etree.SubElement(item, 'CONDITION')
+            condition.text = 'U'
+
+        et = etree.ElementTree(inventory)
+        et.write(file_name, pretty_print=True)
+

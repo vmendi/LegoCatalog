@@ -1,5 +1,5 @@
-#from tkinter.ttk import *
 from tkinter import *
+from tkinter.ttk import *
 from blinker import signal
 from db import get_colors_for_part_number
 from PIL import Image, ImageTk
