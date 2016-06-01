@@ -11,11 +11,16 @@ class ColorPicker (Frame):
     def __init__(self, master, for_part):
         Frame.__init__(self, master)
 
+        self.for_part = for_part
+
         self.inner_frame = Frame(self)
         #self.inner_frame.place(relx=0.5, rely=0, anchor='n')
         self.inner_frame.place(relx=0.5, rely=0.5, anchor='center')
 
-        colors = get_colors_for_part_number(for_part['number'])
+        self.after_idle(self.create_colors)
+
+    def create_colors(self):
+        colors = get_colors_for_part_number(self.for_part['number'])
 
         for index, part_color in enumerate(colors):
             color_frame = Frame(self.inner_frame)
@@ -27,14 +32,13 @@ class ColorPicker (Frame):
             new_color_label.pack()
             new_text_label.pack()
 
-            new_color_label.bind("<Button-1>", lambda e, p=part_color: self.on_create_part_entry(for_part, p))
+            new_color_label.bind("<Button-1>", lambda e, p=part_color: self.on_create_part_entry(p))
 
         cancel_button = Button(self.inner_frame, text = "Cancel", command = self.close)
         cancel_button.grid(row = int(len(colors) / self.COLUMN_COUNT) + 1, columnspan=self.COLUMN_COUNT)
 
-
-    def on_create_part_entry(self, part, part_color):
-        signal('on_create_part_entry').send(self, part=part, part_color=part_color)
+    def on_create_part_entry(self, part_color):
+        signal('on_create_part_entry').send(self, part=self.for_part, part_color=part_color)
         self.close()
 
     def close(self):
