@@ -28,9 +28,9 @@ class Application(Frame):
 
         self.menu_bar.add_cascade(label="File", menu=self.menu_file)
 
-        # Left frame
-        self.left_frame = WeightPanel(self)
-        self.left_frame.grid(row=0, column=0, sticky='n', padx=5, pady=10)
+        # Weight Panel (Left frame)
+        self.weight_panel = WeightPanel(self)
+        self.weight_panel.grid(row=0, column=0, sticky='n', padx=5, pady=10)
 
         # Center Frame
         self.part_images_grid = PartImagesGrid(self)
