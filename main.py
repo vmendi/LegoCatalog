@@ -4,6 +4,7 @@ from decimal import Decimal
 import webbrowser
 from color_picker import ColorPicker
 from blinker import signal
+from part_entry_model import PartEntryModel
 from part_inventory_list import PartInventoryList
 from weight_serial_reader import WeightSerialReader
 from part_info_frame import PartInfoFrame
@@ -17,6 +18,8 @@ class Application(tk.Frame):
 
         self.current_weight = Decimal('0')
         self.current_threshold = Decimal('0.02')
+
+        self.part_entry_model = PartEntryModel()
 
         # Top frame
         self.top_frame = tk.Frame(self)
@@ -73,7 +76,7 @@ class Application(tk.Frame):
         self.grid_rowconfigure(1, weight=1)
 
         # Part inventory list (Right Frame)
-        self.right_frame = PartInventoryList(self)
+        self.right_frame = PartInventoryList(self, self.part_entry_model)
         self.right_frame.grid(row=1, column=2, rowspan=2, sticky='nse', padx=5, pady=10)
 
         # Configure weight reader new thread
