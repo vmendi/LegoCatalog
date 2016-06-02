@@ -7,16 +7,16 @@ def connect():
     return cxn
 
 
-def get_by_weight_from_db_with_threshold(weight, threshold):
+def get_by_weight_from_db_with_threshold(weight, threshold, min_set_qty):
     print('Querying MySql get_by_weight_from_db_with_threshold with weight {}, threshold {}'.format(weight, threshold))
 
     cxn = connect()
     cursor = cxn.cursor(pymysql.cursors.DictCursor)
     sql = "SELECT * " \
           "FROM filtered_parts_with_qty " \
-          "WHERE weight >= %s AND weight <= %s " \
+          "WHERE weight >= %s AND weight <= %s AND total_qty > %s " \
           "ORDER BY total_qty desc"
-    cursor.execute(sql, (weight - threshold, weight + threshold))
+    cursor.execute(sql, (weight - threshold, weight + threshold, min_set_qty))
     result = cursor.fetchall()
     cxn.close()
 

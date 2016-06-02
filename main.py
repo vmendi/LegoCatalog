@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter.filedialog import asksaveasfilename
 import webbrowser
 from decimal import Decimal
+import db
 
 from options_panel import OptionsPanel
 from blinker import signal
@@ -16,7 +17,9 @@ from model import Model
 class Application(Frame):
     def __init__(self, master):
         Frame.__init__(self, master)
-        self.pack(fill="both", expand=1)
+
+        self.master = master
+        self.place(relwidth=1, relheight=1)
 
         self.model = Model()
 
@@ -61,6 +64,7 @@ class Application(Frame):
 
         self.check_new_weight_timer = self.after(10, self.check_new_weight)
 
+
     def on_test_01(self, sender):
         self.after_cancel(self.check_new_weight_timer)
         self.model.set_current_weight(weight=Decimal('0.80'), threshold=Decimal('0.02'))
@@ -82,20 +86,24 @@ class Application(Frame):
 
     def on_create_part_entry(self, sender, part, part_color):
         self.right_frame.add_part_entry(part, part_color)
+        self.options_panel.after_on_create_part_entry_bug()
+
 
     def on_new_weight(self, sender, weight, threshold):
-        self.part_images_grid.create_grid(weight, threshold)
+        parts = db.get_by_weight_from_db_with_threshold(self.model.current_weight,
+                                                        self.model.current_threshold,
+                                                        self.model.min_set_qty)
+        self.part_images_grid.create_grid(parts)
+
 
     def on_mouse_click_part(self, sender, part):
-        # Get the parent widget (it has to be by name)
-        parent_str = self.winfo_parent()
-        parent = self.nametowidget(name=parent_str)
-
-        color_picker = ColorPicker(parent, part)
+        color_picker = ColorPicker(self.master, part)
         color_picker.place(relx=0.5, rely=0.5, relwidth=1, relheight=1, anchor='center')
+
 
     def on_mouse_over_part(self, sender, part):
         self.part_info.set_current_part(part)
+
 
     def on_mouse_click_url(self, sender, part):
         webbrowser.open_new('http://alpha.bricklink.com/pages/clone/catalogitem.page?P=%s' % part['number'])

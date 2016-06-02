@@ -11,9 +11,11 @@ class Model:
         self.current_weight = Decimal('0.0')
         self.current_threshold = Decimal('0.02')
 
+        self.min_set_qty = 5
+
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
-        self.my_weight_reader.start()
+        # self.my_weight_reader.start()
 
     def increase_threshold(self):
         self.current_threshold += Decimal('0.01')
@@ -34,6 +36,10 @@ class Model:
         if next_weight != self.current_weight:
             self.current_weight = next_weight
             signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
+
+    def set_min_set_qty(self, val):
+        self.min_set_qty = val
+        signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
 
 class PartEntry:
     def __init__(self, part, part_color, count):

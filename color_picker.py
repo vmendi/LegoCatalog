@@ -45,7 +45,6 @@ class ColorPicker (Frame):
         self.place_forget()
         del self
 
-
     @staticmethod
     def create_part_color_label(parent, size, part_color_rgb):
         image = Image.new('RGB', size=size, color = "#" + part_color_rgb)

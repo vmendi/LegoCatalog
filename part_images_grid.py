@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter import font
 from blinker import signal
-import db
 import fetch_image
 
 
@@ -37,10 +36,8 @@ class PartImagesGrid (Frame):
 
         self.image_widgets = []
 
-    def create_grid(self, current_weight, current_threshold):
+    def create_grid(self, parts):
         self.destroy_grid()
-
-        parts = db.get_by_weight_from_db_with_threshold(current_weight, current_threshold)
 
         for part in parts:
             new_frame = Frame(self.inner_frame)

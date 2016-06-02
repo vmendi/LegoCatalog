@@ -3,9 +3,6 @@ from tkinter import font
 from decimal import Decimal
 from blinker import signal
 
-from weight_serial_reader import WeightSerialReader
-
-
 class WeightPanel (Frame):
     def __init__(self, master, model):
         Frame.__init__(self, master, bd=1, relief='sunken')
