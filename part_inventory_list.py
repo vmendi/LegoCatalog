@@ -45,9 +45,7 @@ class PartInventoryList (Frame):
         self.part_entry_list.selected_part_entry = part_entry
         self.right_click_menu.post(event.x_root+1, event.y_root)
 
-    def add_part_entry(self, part, part_color):
-        part_entry = self.part_entry_list.add_part_entry(part, part_color)
-
+    def add_part_entry(self, part_entry):
         if part_entry.count == 1:
             self.create_part_entry(part_entry)
         else:

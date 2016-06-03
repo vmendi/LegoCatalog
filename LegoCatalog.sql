@@ -70,6 +70,32 @@ CREATE TABLE inventories
 	counterpart CHAR NOT NULL
 );
 
+DROP TABLE IF EXISTS weighings;
+CREATE TABLE weighings
+(
+  weighing_id int NOT NULL AUTO_INCREMENT,
+  part_number varchar(32) NOT NULL,
+  color_id int(11) NOT NULL,
+  weight DECIMAL(5, 5) NOT NULL,
+  threshold DECIMAL(5, 5) NOT NULL,
+  created_at_pst datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  weighing_cluster_id int NOT NULL,
+  cluster_threshold DECIMAL(5, 5) NOT NULL,
+  	
+  PRIMARY KEY(weighing_id) 
+);
+
+DROP TABLE IF EXISTS weighings_clusters;
+CREATE TABLE weighings_clusters
+(
+  weighing_cluster_id int NOT NULL AUTO_INCREMENT,
+  part_number varchar(32) NOT NULL,
+  mean_weight DECIMAL(5, 5) NOT NULL,
+  weighings_count int NOT NULL,
+  
+  PRIMARY KEY(weighing_cluster_id) 
+);
+
 # Download these files from http://www.bricklink.com/catalogDownload.asp
 LOAD DATA INFILE '/users/vmendi/Documents/LegoCatalog/data/BrickLink/Categories.txt' INTO TABLE categories LINES TERMINATED BY '\r\n' IGNORE 2 LINES;
 LOAD DATA INFILE '/users/vmendi/Documents/LegoCatalog/data/BrickLink/Colors.txt' INTO TABLE colors LINES TERMINATED BY '\r\n' IGNORE 2 LINES;
