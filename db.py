@@ -15,7 +15,10 @@ def get_by_weight_from_db_with_threshold(weight, threshold, min_set_qty):
     cursor = cxn.cursor(pymysql.cursors.DictCursor)
     sql = "SELECT * " \
           "FROM filtered_parts_with_qty " \
-          "WHERE weight >= %s AND weight <= %s AND total_qty > %s " \
+          "LEFT JOIN weighings_clusters on weighings_clusters.part_number = filtered_parts_with_qty.number " \
+          "WHERE IFNULL(weighings_clusters.mean_weight, filtered_parts_with_qty.weight) >= %s " \
+          "AND IFNULL(weighings_clusters.mean_weight, filtered_parts_with_qty.weight) <= %s AND total_qty > %s " \
+          "GROUP BY filtered_parts_with_qty.number " \
           "ORDER BY total_qty desc"
     cursor.execute(sql, (weight - threshold, weight + threshold, min_set_qty))
     result = cursor.fetchall()

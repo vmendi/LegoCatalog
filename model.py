@@ -15,7 +15,7 @@ class Model:
 
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
-        self.my_weight_reader.start()
+        #self.my_weight_reader.start()
 
     def increase_threshold(self):
         self.current_threshold += Decimal('0.01')
