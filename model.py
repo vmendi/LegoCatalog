@@ -9,13 +9,13 @@ class Model:
         self.part_entry_list = PartEntryList()
 
         self.current_weight = Decimal('0.0')
-        self.current_threshold = Decimal('0.02')
+        self.current_threshold = Decimal('0.10')
 
         self.min_set_qty = 5
 
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
-        # self.my_weight_reader.start()
+        self.my_weight_reader.start()
 
     def increase_threshold(self):
         self.current_threshold += Decimal('0.01')

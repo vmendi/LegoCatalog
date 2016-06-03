@@ -161,7 +161,7 @@ and categories.category_name not like '%fabuland%'	# Acabo en 1989 y son para be
 and parts.name not like '%duplo%'                   # Despues de filtrar por el nombre de la categoria, aun quedan algunas piezas
 and parts.name not like '%belville%'                # Despues de filtrar por el nombre de la categoria, aun quedan algunas piezas
 and parts.category_name not like '%decorated%'      # OPCIONAL! Las piezas decoradas en general pesan lo mismo que la base. De ~14,000 a 5700!
-and sets.year >= 2000 and inventories.type = "P"
+and sets.year >= 1990 and inventories.type = "P"
 group by parts.weight, parts.category_id, parts.category_name, parts.number, parts.name, parts.dimensions  # Agrupadas por peso primero, 
 																										   # para que puedas ver repeticion 
 																										   # y distancia entre pesos
@@ -210,6 +210,5 @@ SELECT SUM(inventories.qty) as total_qty, filtered_parts.*
 	from inventories 
 	join sets on inventories.set_number = sets.number
 	join filtered_parts on filtered_parts.number = inventories.part_number
-where sets.year >= 2000 and type = "P"
 group by filtered_parts.number
 order by total_qty desc;
