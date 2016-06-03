@@ -58,7 +58,7 @@ class Application(Frame):
         signal('on_mouse_click_part').connect(self.on_mouse_click_part)
         signal('on_mouse_click_url').connect(self.on_mouse_click_url)
         signal('on_new_weight').connect(self.on_new_weight)
-        signal('on_create_part_entry').connect(self.on_create_part_entry)
+        signal('on_color_picker_closed').connect(self.on_color_picker_closed)
         signal('on_mouse_over_part').connect(self.on_mouse_over_part)
         signal('on_test_01').connect(self.on_test_01)
 
@@ -84,9 +84,11 @@ class Application(Frame):
             self.model.part_entry_list.save_xml(name)
 
 
-    def on_create_part_entry(self, sender, part, part_color):
-        self.right_frame.add_part_entry(part, part_color)
-        self.options_panel.after_on_create_part_entry_bug()
+    def on_color_picker_closed(self, sender, part, part_color):
+        if part is not None and part_color is part_color:
+            self.right_frame.add_part_entry(part, part_color)
+
+        self.options_panel.on_color_picker_closed_fix_bug()
 
 
     def on_new_weight(self, sender, weight, threshold):

@@ -34,11 +34,15 @@ class ColorPicker (Frame):
 
             new_color_label.bind("<Button-1>", lambda e, p=part_color: self.on_create_part_entry(p))
 
-        cancel_button = Button(self.inner_frame, text = "Cancel", command = self.close)
+        cancel_button = Button(self.inner_frame, text = "Cancel", command = self.on_cancel)
         cancel_button.grid(row = int(len(colors) / self.COLUMN_COUNT) + 1, columnspan=self.COLUMN_COUNT)
 
     def on_create_part_entry(self, part_color):
-        signal('on_create_part_entry').send(self, part=self.for_part, part_color=part_color)
+        signal('on_color_picker_closed').send(self, part=self.for_part, part_color=part_color)
+        self.close()
+
+    def on_cancel(self):
+        signal('on_color_picker_closed').send(self, part=None, part_color=None)
         self.close()
 
     def close(self):

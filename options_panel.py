@@ -27,7 +27,7 @@ class OptionsPanel (Frame):
         self.test.grid(row=1, column=1)
 
 
-    def after_on_create_part_entry_bug(self):
+    def on_color_picker_closed_fix_bug(self):
         self.min_set_qty.grid_forget()
         self.min_set_qty.grid(row=0, column=1)
 
