@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import font
-from decimal import Decimal
 from blinker import signal
 
 class WeightPanel (Frame):

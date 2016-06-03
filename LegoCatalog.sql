@@ -76,11 +76,11 @@ CREATE TABLE weighings
   weighing_id int NOT NULL AUTO_INCREMENT,
   part_number varchar(32) NOT NULL,
   color_id int(11) NOT NULL,
-  weight DECIMAL(5, 5) NOT NULL,
-  threshold DECIMAL(5, 5) NOT NULL,
+  weight DECIMAL(15, 5) NOT NULL,
+  threshold DECIMAL(15, 5) NOT NULL,
   created_at_pst datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   weighing_cluster_id int NOT NULL,
-  cluster_threshold DECIMAL(5, 5) NOT NULL,
+  cluster_threshold DECIMAL(15, 5) NOT NULL,
   	
   PRIMARY KEY(weighing_id) 
 );
@@ -90,7 +90,7 @@ CREATE TABLE weighings_clusters
 (
   weighing_cluster_id int NOT NULL AUTO_INCREMENT,
   part_number varchar(32) NOT NULL,
-  mean_weight DECIMAL(5, 5) NOT NULL,
+  mean_weight DECIMAL(15, 5) NOT NULL,
   weighings_count int NOT NULL,
   
   PRIMARY KEY(weighing_cluster_id) 

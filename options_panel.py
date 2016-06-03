@@ -12,13 +12,13 @@ class OptionsPanel (Frame):
         self.grid_columnconfigure(0, weight=2)
         self.grid_columnconfigure(1, weight=1)
 
-        self.min_set_qty_label = Label(self, text='Min sets included in:', anchor='w')
+        self.min_set_qty_label = Label(self, text='Min qty in sets:', anchor='w')
         self.min_set_qty_label.grid(row=0, column=0, sticky='we')
 
         self.spinner_min_set_qty = StringVar(self)
         self.spinner_min_set_qty.set(str(model.min_set_qty))
 
-        self.min_set_qty = Spinbox(self, from_=0, to=10, width=4, textvariable=self.spinner_min_set_qty)
+        self.min_set_qty = Spinbox(self, from_=0, to=50, width=4, textvariable=self.spinner_min_set_qty)
         self.min_set_qty.grid(row=0, column=1)
 
         self.spinner_min_set_qty.trace('w', self.on_min_set_qty_change)
@@ -33,7 +33,11 @@ class OptionsPanel (Frame):
 
     def on_min_set_qty_change(self, *args):
         val = self.spinner_min_set_qty.get()
-        self.model.set_min_set_qty(int(val))
+
+        try:
+            self.model.set_min_set_qty(int(val))
+        except ValueError:
+            pass
 
 
     def testing_method(self):
