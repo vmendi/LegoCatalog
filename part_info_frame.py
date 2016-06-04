@@ -44,7 +44,12 @@ class PartInfoFrame(Frame):
     def set_current_part(self, part):
         self.part_name['text'] = part['name']
         self.part_number['text'] = part['number']
-        self.part_weight['text'] = part['weight']
+
+        if part['mean_weight'] is not None:
+            self.part_weight['text'] = str(part['mean_weight']) + " (mean)"
+        else:
+            self.part_weight['text'] = part['weight']
+
         self.part_qty['text'] = part['total_qty']
         self.part_size['text'] = part['dimensions']
 
