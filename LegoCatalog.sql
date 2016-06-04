@@ -19,7 +19,9 @@ CREATE TABLE colors
 	wanted INT NOT NULL,
 	for_sale INT NOT NULL,
 	year_from INT NOT NULL,
-	year_to INT NOT NULL
+	year_to INT NOT NULL,
+	
+	PRIMARY KEY (color_id)
 );
 
 DROP TABLE IF EXISTS parts;
@@ -72,7 +74,8 @@ CREATE TABLE inventories
 	counterpart CHAR NOT NULL,
 	
 	KEY (part_number),
-	KEY (set_number)
+	KEY (set_number),
+	KEY(color_id)
 );
 
 DROP TABLE IF EXISTS weighings;

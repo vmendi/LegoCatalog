@@ -62,7 +62,7 @@ class Application(Frame):
         signal('on_mouse_over_part').connect(self.on_mouse_over_part)
         signal('on_test_01').connect(self.on_test_01)
 
-        self.check_new_weight_timer = self.after(10, self.check_new_weight)
+        self.check_new_weight_timer = self.after(30, self.check_new_weight)
 
 
     def on_test_01(self, sender):
@@ -72,7 +72,7 @@ class Application(Frame):
 
     def check_new_weight(self):
         self.model.check_new_weight()
-        self.check_new_weight_timer = self.after(10, self.check_new_weight)
+        self.check_new_weight_timer = self.after(30, self.check_new_weight)
 
 
     def save_xml(self):
