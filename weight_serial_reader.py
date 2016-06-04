@@ -10,6 +10,11 @@ class WeightSerialReader (threading.Thread):
         self.weight_lock = threading.Lock()
         self.last_weight = Decimal('0.0')
 
+        self.stop_signal = threading.Event()
+
+    def stop(self):
+        self.stop_signal.set()
+
     def run(self):
         serial_port = None
         while serial_port is None:
@@ -18,6 +23,10 @@ class WeightSerialReader (threading.Thread):
 
         while True:
             byte_buffer = serial_port.readline()
+
+            if self.stop_signal.is_set():
+                serial_port.close()
+                break
 
             if len(byte_buffer) > 0:
                 # "ST,GS,+  9.525g   \r\n"
@@ -52,7 +61,7 @@ class WeightSerialReader (threading.Thread):
         try:
             ret = serial.Serial(com_port, 9600, bytesize=serial.SEVENBITS,
                                 parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE,
-                                timeout=1,  # Timeout while waiting for a readLine()
+                                timeout=0.1,  # Timeout while waiting for a readLine()
                                 xonxoff=False, rtscts=False, dsrdtr=False)
             print("Opened " + ret.portstr + " serial port")
         except:

@@ -141,4 +141,10 @@ if __name__ == '__main__':
 
     center_window(root)
 
+    def on_closing():
+        root.destroy()
+        myapp.model.my_weight_reader.stop()
+
+    root.protocol("WM_DELETE_WINDOW", on_closing)
+
     myapp.mainloop()
