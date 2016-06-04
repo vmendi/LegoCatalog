@@ -40,7 +40,9 @@ CREATE TABLE codes
 (
 	part_number INT NOT NULL,
 	color_name varchar(256) NOT NULL,
-	code INT NOT NULL
+	code INT NOT NULL,
+	
+	KEY (part_number)
 );
 
 DROP TABLE IF EXISTS sets;
@@ -67,7 +69,10 @@ CREATE TABLE inventories
 	match_id INT NOT NULL,
 	type CHAR NOT NULL,
 	extra CHAR NOT NULL,
-	counterpart CHAR NOT NULL
+	counterpart CHAR NOT NULL,
+	
+	KEY (part_number),
+	KEY (set_number)
 );
 
 DROP TABLE IF EXISTS weighings;
@@ -106,9 +111,6 @@ LOAD DATA INFILE '/users/vmendi/Documents/LegoCatalog/data/BrickLink/Parts.txt' 
 LOAD DATA INFILE '/users/vmendi/Documents/LegoCatalog/data/BrickLink/Codes.txt' INTO TABLE codes LINES TERMINATED BY '\r\n' IGNORE 1 LINES;
 LOAD DATA INFILE '/users/vmendi/Documents/LegoCatalog/data/BrickLink/Sets.txt' INTO TABLE sets LINES TERMINATED BY '\r\n' IGNORE 3 LINES;
 
-alter table inventories add KEY(part_number);
-alter table inventories add KEY(set_number);
-alter table codes add KEY(part_number);
 	
 #----------------------------------------------------------------------------------------
 # Empiezo de nuevo, creo que lo mejor es tomar la lista filtrada como base para todas las
