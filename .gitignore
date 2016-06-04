@@ -1,4 +1,5 @@
 *.pyc
 data/
 python3_env/
+.idea/
 __pycache__
