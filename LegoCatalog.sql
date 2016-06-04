@@ -82,7 +82,8 @@ CREATE TABLE weighings
   weighing_cluster_id int NOT NULL,
   cluster_threshold DECIMAL(15, 5) NOT NULL,
   	
-  PRIMARY KEY(weighing_id) 
+  PRIMARY KEY(weighing_id),
+  KEY (part_number)
 );
 
 DROP TABLE IF EXISTS weighings_clusters;
@@ -93,7 +94,9 @@ CREATE TABLE weighings_clusters
   mean_weight DECIMAL(15, 5) NOT NULL,
   weighings_count int NOT NULL,
   
-  PRIMARY KEY(weighing_cluster_id) 
+  PRIMARY KEY(weighing_cluster_id),
+  KEY(part_number),
+  KEY(mean_weight)
 );
 
 # Download these files from http://www.bricklink.com/catalogDownload.asp
@@ -103,6 +106,10 @@ LOAD DATA INFILE '/users/vmendi/Documents/LegoCatalog/data/BrickLink/Parts.txt' 
 LOAD DATA INFILE '/users/vmendi/Documents/LegoCatalog/data/BrickLink/Codes.txt' INTO TABLE codes LINES TERMINATED BY '\r\n' IGNORE 1 LINES;
 LOAD DATA INFILE '/users/vmendi/Documents/LegoCatalog/data/BrickLink/Sets.txt' INTO TABLE sets LINES TERMINATED BY '\r\n' IGNORE 3 LINES;
 
+alter table inventories add KEY(part_number);
+alter table inventories add KEY(set_number);
+alter table codes add KEY(part_number);
+	
 
 # --------------------------------------------------------------------------------------
 create or replace view filtered_parts as
@@ -162,7 +169,8 @@ select * from filtered_parts where weight > 100;
 # dejo lo de arriba como referencia
 
 # Vista filtrada que quita categorias que no nos gustan y piezas que no aparecen desde X year
-create table filtered_parts as
+drop table if exists filtered_parts;
+create table filtered_parts (PRIMARY KEY(number), KEY(category_id)) as
 select parts.category_id, parts.category_name, parts.number, parts.name, parts.weight, parts.dimensions 
 	from parts
 	join categories on parts.category_id = categories.category_id
@@ -231,10 +239,12 @@ where sets.year >= 2006 and type = "P";
 #
 # Esta tabla substituye a filtered_parts
 #
-create table filtered_parts_with_qty as
+drop table if exists filtered_parts_with_qty;
+create table filtered_parts_with_qty (PRIMARY KEY (number), KEY(weight)) as
 SELECT SUM(inventories.qty) as total_qty, filtered_parts.*
 	from inventories 
 	join sets on inventories.set_number = sets.number
 	join filtered_parts on filtered_parts.number = inventories.part_number
 group by filtered_parts.number
 order by total_qty desc;
+
