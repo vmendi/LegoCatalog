@@ -110,59 +110,6 @@ alter table inventories add KEY(part_number);
 alter table inventories add KEY(set_number);
 alter table codes add KEY(part_number);
 	
-
-# --------------------------------------------------------------------------------------
-create or replace view filtered_parts as
-select parts.category_id, parts.category_name, parts.number, 
-	   parts.name, parts.weight, parts.dimensions from parts
-join categories on parts.category_id = categories.category_id
-where categories.category_name not like '%duplo%'
-and categories.category_name not like '%sticker%'
-and categories.category_name not like '%minifig%'
-and categories.category_name not like '%modulex%'
-and categories.category_name not like '%jumbo%'
-and parts.name not like '%duplo%'
-;
-
-# Cuantas piezas en la vista filtrada?
-SELECT count(*) from filtered_parts;
-
-# Cuantas piezas por categoria
-SELECT count(*) as parts_per_category, categories.category_name from filtered_parts
-join categories on filtered_parts.category_id = categories.category_id
-group by categories.category_name
-order by parts_per_category desc;
-
-# Cuantos tipos de piezas a partir de un año pero que aparezcan en la lista filtrada?
-select distinct(inventories.part_number) from inventories 
-	join sets on inventories.set_number = sets.number 
-	join filtered_parts on filtered_parts.number = inventories.part_number
-	where sets.year >= 2006 and type = "P";
-	
-
-# Piezas agrupadas por color. Cuantas en total ponen en los sets a partir de un año?
-SELECT SUM(QTY), inventories.part_number, colors.color_name, parts.name, parts.weight
-	from inventories 
-	join parts on inventories.part_number = parts.number
-	join sets on inventories.set_number = sets.number
-	join colors on inventories.color_id = colors.color_id
-where sets.year >= 2000 and sets.category_name not like '%duplo%'
-group by inventories.part_number, inventories.color_id order by sum(qty) desc;
-
-# Ranking de colores segun cuantas piezas ponen en los sets de ese color.
-SELECT SUM(QTY), colors.color_name
-	from inventories 
-	join sets on inventories.set_number = sets.number
-	join colors on inventories.color_id = colors.color_id
-where sets.year >= 1990 and sets.category_name not like '%duplo%'
-group by inventories.color_id order by sum(qty) desc;
-
-# Cuantas piezas pesan lo mismo?
-select weight, count(*) from filtered_parts group by weight order by weight asc;
-
-# Cuantas piezas pesan mas de una cantidad?
-select * from filtered_parts where weight > 100;
-
 #----------------------------------------------------------------------------------------
 # Empiezo de nuevo, creo que lo mejor es tomar la lista filtrada como base para todas las
 # demas queries, especialmente la de peso que es la que mas nos interesa ahora mismo, 
