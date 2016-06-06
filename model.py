@@ -1,5 +1,6 @@
 from decimal import Decimal
 from blinker import signal
+import db
 from lxml import etree
 from weight_serial_reader import WeightSerialReader
 
@@ -9,7 +10,10 @@ class Model:
         self.part_entry_list = PartEntryList()
 
         self.current_weight = Decimal('0.0')
-        self.current_threshold = Decimal('0.10')
+        self.current_window_center = self.current_weight
+        self.current_threshold = Decimal('0.04')
+
+        self.curr_parts = []
 
         self.min_set_qty = 20
 
@@ -17,29 +21,49 @@ class Model:
         self.my_weight_reader = WeightSerialReader()
         self.my_weight_reader.start()
 
+    def increase_window_center(self):
+        self.current_window_center += self.current_threshold*2
+        self.refresh_parts()
+
+    def decrease_window_center(self):
+        self.current_window_center -= self.current_threshold*2
+        self.refresh_parts()
+
     def increase_threshold(self):
-        self.current_threshold += Decimal('0.01')
-        signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
+        self.current_threshold += Decimal('0.02')
+        self.refresh_parts()
 
     def decrease_threshold(self):
-        self.current_threshold -= Decimal('0.01')
-        signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
+        self.current_threshold -= Decimal('0.02')
+        self.refresh_parts()
 
     def set_current_weight(self, weight, threshold):
         self.current_weight = weight
+        self.current_window_center = self.current_weight
         self.current_threshold = threshold
-        signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
+        self.refresh_parts()
 
     def check_new_weight(self):
         next_weight = self.my_weight_reader.get_last_weight()
 
         if next_weight != self.current_weight:
             self.current_weight = next_weight
-            signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
+            self.current_window_center = self.current_weight
+
+            self.refresh_parts()
+
+    def refresh_parts(self):
+        self.curr_parts = db.get_by_weight_from_db_with_threshold(self.current_window_center,
+                                                                  self.current_threshold,
+                                                                  self.min_set_qty)
+        signal('on_new_weight').send(self, weight=self.current_weight,
+                                           window_center=self.current_window_center,
+                                           threshold=self.current_threshold,
+                                           parts=self.curr_parts)
 
     def set_min_set_qty(self, val):
         self.min_set_qty = val
-        signal('on_new_weight').send(self, weight=self.current_weight, threshold=self.current_threshold)
+        self.refresh_parts()
 
 class PartEntry:
     def __init__(self, part, part_color, count):

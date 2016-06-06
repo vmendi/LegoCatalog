@@ -57,9 +57,7 @@ class Application(Frame):
         # Events
         signal('on_mouse_click_part').connect(self.on_mouse_click_part)
         signal('on_mouse_click_url').connect(self.on_mouse_click_url)
-        signal('on_new_weight').connect(self.on_new_weight)
         signal('on_color_picker_closed').connect(self.on_color_picker_closed)
-        signal('on_mouse_over_part').connect(self.on_mouse_over_part)
         signal('on_test_01').connect(self.on_test_01)
 
         self.check_new_weight_timer = self.after(30, self.check_new_weight)
@@ -100,21 +98,9 @@ class Application(Frame):
         self.options_panel.on_color_picker_closed_fix_bug()
 
 
-    def on_new_weight(self, sender, weight, threshold):
-        parts = db.get_by_weight_from_db_with_threshold(self.model.current_weight,
-                                                        self.model.current_threshold,
-                                                        self.model.min_set_qty)
-        self.part_images_grid.create_grid(parts)
-
-
     def on_mouse_click_part(self, sender, part):
         color_picker = ColorPicker(self.master, part)
         color_picker.place(relx=0.5, rely=0.5, relwidth=1, relheight=1, anchor='center')
-
-
-    def on_mouse_over_part(self, sender, part):
-        self.part_info.set_current_part(part)
-
 
     def on_mouse_click_url(self, sender, part):
         webbrowser.open_new('http://alpha.bricklink.com/pages/clone/catalogitem.page?P=%s' % part['number'])
@@ -137,7 +123,7 @@ if __name__ == '__main__':
     myapp.master.title("Lego Sorter")
     myapp.master.minsize(width=500, height=200)
 
-    root.geometry('{}x{}'.format(1400, 1000))
+    root.geometry('{}x{}'.format(1450, 1000))
 
     center_window(root)
 

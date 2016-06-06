@@ -26,6 +26,8 @@ class PartImagesGrid (Frame):
         self.canvas_window = self.canvas.create_window((0, 0), anchor='nw', window=self.inner_frame,
                                                        tags="self.inner_frame")
 
+        signal('on_new_weight').connect(self.on_new_weight)
+
     def on_inner_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
         self.canvas.itemconfig(self.canvas_window, width=self.canvas.winfo_width() - 7)
@@ -36,7 +38,7 @@ class PartImagesGrid (Frame):
 
         self.image_widgets = []
 
-    def create_grid(self, parts):
+    def on_new_weight(self, sender, weight, window_center, threshold, parts):
         self.destroy_grid()
 
         for part in parts:
