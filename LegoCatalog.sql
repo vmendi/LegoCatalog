@@ -200,10 +200,23 @@ SELECT SUM(inventories.qty) as total_qty, filtered_parts.*, FLOOR(SUM(inventorie
 group by filtered_parts.number
 order by total_qty desc;
 
+#----------------------------------------------------------------------------------------
+# Section "Ordering Table"
+#
+# Creo la tabla "ordering" a mano, para despues exportarla a csv usando sequel pro "export"
 drop table if exists ordering;
 create table ordering as
 select number, name, category_name, qty_by_weight, weight, CONCAT("http://alpha.bricklink.com/pages/clone/catalogitem.page?P=", number) as url
 from filtered_parts_with_qty;
-
 alter table ordering add column ordering VARCHAR(64);
+
+# La importo en google docs, modifico, grabo a csv otra vez e importo con:
+drop table if exists ordering;
+create table ordering (
+	number VARCHAR(32) PRIMARY KEY,
+	ordering VARCHAR(64)
+);
+LOAD DATA INFILE '/users/vmendi/Documents/LegoCatalog/data/Csv/Lego - Ordering.csv' INTO TABLE ordering 
+	FIELDS TERMINATED BY ','  LINES TERMINATED BY '\r\n' 
+	(number, ordering);	# Nos quedamos solo con estas dos columnas
 
