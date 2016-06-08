@@ -65,6 +65,14 @@ class Model:
         self.min_set_qty = val
         self.refresh_parts()
 
+    # We got a new Weighing!
+    def on_new_weighing(self, part, part_color):
+        the_part_entry = self.part_entry_list.add_part_entry(part, part_color)
+
+        db.insert_weighing(part['number'], part_color['color_id'], self.current_weight, self.current_threshold)
+
+        return the_part_entry
+
 class PartEntry:
     def __init__(self, part, part_color, count):
         self.part = part

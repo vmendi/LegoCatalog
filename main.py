@@ -85,15 +85,10 @@ class Application(Frame):
     def on_color_picker_closed(self, sender, part, part_color):
         if part is not None and part_color is part_color:
             # Create the part in the model
-            part_entry = self.model.part_entry_list.add_part_entry(part, part_color)
+            part_entry = self.model.on_new_weighing(part, part_color)
 
             # Add it to the UI
             self.right_frame.add_part_entry(part_entry)
-
-            # We got a new Weighing!
-            db.insert_weighing(part['number'], part_color['color_id'],
-                               self.model.current_weight,
-                               self.model.current_threshold)
 
         self.options_panel.on_color_picker_closed_fix_bug()
 

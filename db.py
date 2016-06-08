@@ -16,6 +16,7 @@ def get_by_weight_from_db_with_threshold(weight, threshold, min_set_qty):
     sql = "SELECT * " \
           "FROM filtered_parts_with_qty " \
           "LEFT JOIN weighings_clusters on weighings_clusters.part_number = filtered_parts_with_qty.number " \
+          "LEFT JOIN ordering on ordering.number = filtered_parts_with_qty.number " \
           "WHERE IFNULL(weighings_clusters.mean_weight, filtered_parts_with_qty.weight) >= %s " \
           "AND IFNULL(weighings_clusters.mean_weight, filtered_parts_with_qty.weight) < %s AND total_qty > %s " \
           "GROUP BY filtered_parts_with_qty.number " \
