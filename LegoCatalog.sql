@@ -193,10 +193,17 @@ where sets.year >= 2006 and type = "P";
 #
 drop table if exists filtered_parts_with_qty;
 create table filtered_parts_with_qty (PRIMARY KEY (number), KEY(weight)) as
-SELECT SUM(inventories.qty) as total_qty, filtered_parts.*
+SELECT SUM(inventories.qty) as total_qty, filtered_parts.*, FLOOR(SUM(inventories.qty) * weight) as qty_by_weight
 	from inventories 
 	join sets on inventories.set_number = sets.number
 	join filtered_parts on filtered_parts.number = inventories.part_number
 group by filtered_parts.number
 order by total_qty desc;
+
+drop table if exists ordering;
+create table ordering as
+select number, name, category_name, qty_by_weight, weight, CONCAT("http://alpha.bricklink.com/pages/clone/catalogitem.page?P=", number) as url
+from filtered_parts_with_qty;
+
+alter table ordering add column ordering VARCHAR(64);
 
