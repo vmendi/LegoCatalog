@@ -16,6 +16,7 @@ cxn = db.connect()
 cursor = cxn.cursor(pymysql.cursors.DictCursor)
 
 sql = "DROP TABLE IF EXISTS ordering"
+print(sql)
 cursor.execute(sql)
 
 sql = """
@@ -24,6 +25,7 @@ create table ordering (
 	ordering VARCHAR(64)
 )
 """
+print(sql)
 cursor.execute(sql)
 
 sql = """
@@ -33,6 +35,7 @@ LOAD DATA INFILE '{}/data/Csv/Lego - Ordering.csv' INTO TABLE ordering
 """
 
 sql = sql.format(os.getcwd())
+print(sql)
 cursor.execute(sql)
 
 cxn.close()
