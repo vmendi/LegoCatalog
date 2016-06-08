@@ -24,8 +24,17 @@ class OptionsPanel (Frame):
         self.spinner_min_set_qty.trace('w', self.on_min_set_qty_change)
 
         self.test = Button(self, text = "test", command = self.testing_method)
-        self.test.grid(row=1, column=1)
+        self.test.grid(row=2, column=0, sticky='w')
 
+        self.insert_weighings = BooleanVar()
+        self.insert_weighings.set(self.model.insert_weighings)
+
+        self.insert_weighings_check = Checkbutton(self, text = "Insert Weighings", variable = self.insert_weighings,
+                                                  command = self.on_insert_weighings_changed)
+        self.insert_weighings_check.grid(row=1, column = 0, sticky = 'w')
+
+    def on_insert_weighings_changed(self):
+        self.model.set_insert_weighings(self.insert_weighings.get())
 
     def on_color_picker_closed_fix_bug(self):
         self.min_set_qty.grid_forget()

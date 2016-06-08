@@ -16,6 +16,7 @@ class Model:
         self.curr_parts = []
 
         self.min_set_qty = 20
+        self.insert_weighings = True
 
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
@@ -65,11 +66,15 @@ class Model:
         self.min_set_qty = val
         self.refresh_parts()
 
+    def set_insert_weighings(self, val):
+        self.insert_weighings = val
+
     # We got a new Weighing!
     def on_new_weighing(self, part, part_color):
         the_part_entry = self.part_entry_list.add_part_entry(part, part_color)
 
-        db.insert_weighing(part['number'], part_color['color_id'], self.current_weight, self.current_threshold)
+        if self.insert_weighings:
+            db.insert_weighing(part['number'], part_color['color_id'], self.current_weight, self.current_threshold)
 
         return the_part_entry
 
@@ -141,6 +146,10 @@ class PartEntryList:
 
             category = etree.SubElement(item, 'CATEGORY')
             category.text = str(part_entry.part['category_id'])
+
+            if part_entry.part['ordering']:
+                remarks = etree.SubElement(item, 'REMARKS')
+                remarks.text = str(part_entry.part['ordering'])
 
             qty = etree.SubElement(item, 'QTY')
             qty.text = str(part_entry.count)

@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter.font import Font
 from blinker import signal
 from color_picker import ColorPicker
 import fetch_image
@@ -23,7 +24,7 @@ class PartInventoryList (Frame):
 
         self.inner_frame = Frame(self.canvas)
         self.inner_frame.grid()
-        self.inner_frame.grid_columnconfigure(2, weight=1)
+        self.inner_frame.grid_columnconfigure(3, weight=1)
         self.inner_frame.bind("<Configure>", self.on_inner_frame_configure)
 
         self.canvas_window = self.canvas.create_window((0, 0), anchor='nw', window=self.inner_frame,
@@ -35,6 +36,8 @@ class PartInventoryList (Frame):
 
         self.part_entry_widgets_map = {}
         self.part_entry_list = part_entry_list
+
+        self.small_font = Font(size=10)
 
 
     def on_inner_frame_configure(self, event):
@@ -73,17 +76,19 @@ class PartInventoryList (Frame):
 
         part_entry_widgets = {
             'image': fetch_image.create_part_image_label(part, self.inner_frame, 0.5),
-            'numba': Label(self.inner_frame, text=part['number']),
-            'color': Label(self.inner_frame, text=part_color['color_name']),
+            'numba': Label(self.inner_frame, text=part['number'], font=self.small_font),
+            'color': Label(self.inner_frame, text=part_color['color_name'], font=self.small_font, anchor='w'),
             'count': Label(self.inner_frame, text=part_entry.count),
+            'order': Label(self.inner_frame, text=part['ordering']),
             'color_image': ColorPicker.create_part_color_label(self.inner_frame, (16, 32), part_color['rgb'])
         }
 
-        part_entry_widgets['image'].grid(row=next_row_index, column=0, padx=5)
+        part_entry_widgets['image'].grid(row=next_row_index, column=0, padx=3)
         part_entry_widgets['color_image'].grid(row=next_row_index, column=1, sticky='w')
-        part_entry_widgets['color'].grid(row=next_row_index, column=2, sticky='w')
-        part_entry_widgets['numba'].grid(row=next_row_index, column=3, sticky='w', padx=5)
-        part_entry_widgets['count'].grid(row=next_row_index, column=4)
+        part_entry_widgets['numba'].grid(row=next_row_index, column=2, sticky='w')
+        part_entry_widgets['color'].grid(row=next_row_index, column=3, sticky='w')
+        part_entry_widgets['order'].grid(row=next_row_index, column=4, sticky='e')
+        part_entry_widgets['count'].grid(row=next_row_index, column=5)
 
         self.part_entry_widgets_map[part_entry.hash()] = part_entry_widgets
 

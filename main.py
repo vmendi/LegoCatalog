@@ -38,7 +38,7 @@ class Application(Frame):
 
         # Options Panel
         self.options_panel = OptionsPanel(self, self.model)
-        self.options_panel.grid(row=1, column=0, sticky='wes', padx=5, pady=10)
+        self.options_panel.grid(row=1, column=0, sticky='s', padx=5, pady=10)
 
         # Center Frame
         self.part_images_grid = PartImagesGrid(self)
@@ -48,11 +48,12 @@ class Application(Frame):
         self.part_info.grid(row=1, column=1, sticky='we', padx=5, pady=10)
 
         self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, minsize=360)
         self.grid_rowconfigure(0, weight=1)
 
         # Part inventory list (Right Frame)
         self.right_frame = PartInventoryList(self, self.model.part_entry_list)
-        self.right_frame.grid(row=0, column=2, rowspan=2, sticky='nse', padx=5, pady=10)
+        self.right_frame.grid(row=0, column=2, rowspan=2, sticky='nsew', padx=5, pady=10)
 
         # Events
         signal('on_mouse_click_part').connect(self.on_mouse_click_part)
@@ -118,7 +119,7 @@ if __name__ == '__main__':
     myapp.master.title("Lego Sorter")
     myapp.master.minsize(width=500, height=200)
 
-    root.geometry('{}x{}'.format(1450, 1000))
+    root.geometry('{}x{}'.format(1440, 1000))
 
     center_window(root)
 

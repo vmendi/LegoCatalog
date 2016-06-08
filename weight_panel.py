@@ -8,10 +8,10 @@ class WeightPanel (Frame):
 
         self.model = model
 
-        self.weight_label = Label(self, text=model.current_weight, width=7, anchor='e',
+        self.weight_label = Label(self, text=model.current_weight, width=5, anchor='e',
                                   font = Font(family="Helvetica", size=60),
                                   bg="#%02x%02x%02x" % (240, 240, 240))
-        self.weight_label.grid(row=0, column=0)
+        self.weight_label.grid(row=0, column=0, sticky='we')
 
         self.buttons_frame = Frame(self)
         self.buttons_frame.grid(row=1, column=0, sticky='we')
