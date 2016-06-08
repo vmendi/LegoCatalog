@@ -3,3 +3,6 @@ data/
 python3_env/
 .idea/
 __pycache__
+dist/
+build/
+main.spec
