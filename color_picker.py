@@ -26,7 +26,7 @@ class ColorPicker (Frame):
             color_frame = Frame(self.inner_frame)
             color_frame.grid(row = int(index / self.COLUMN_COUNT), column = int(index % self.COLUMN_COUNT), pady=5)
 
-            new_color_label = ColorPicker.create_part_color_label(color_frame, (128, 128), part_color['rgb'])
+            new_color_label = ColorPicker.create_part_color_label(color_frame, (90, 90), part_color['rgb'])
             new_text_label = Label(color_frame, text = part_color['color_name'])
 
             new_color_label.pack()
