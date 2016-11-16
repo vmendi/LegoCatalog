@@ -1,3 +1,4 @@
+from collections import defaultdict
 from decimal import Decimal
 import pymysql
 
@@ -21,23 +22,47 @@ def get_by_weight_from_db_with_threshold(weight, threshold, min_set_qty):
           "AND IFNULL(weighings_clusters.mean_weight, filtered_parts_with_qty.weight) < %s AND total_qty > %s " \
           "ORDER BY total_qty desc"
     cursor.execute(sql, (weight - threshold, weight + threshold, min_set_qty))
-    result = cursor.fetchall()
+    parts_list = cursor.fetchall()
     cursor.close()
     cxn.close()
 
-    # The lack and imposibility in MySQL of a GROUP BY in the query above means that we have to dedup here
+    print('MySql returned {} results'.format(len(parts_list)))
+
+    # We want to include information about the molds (clusters) a part belongs to
+    attach_clusters_to_parts(parts_list)
+
+    # The lack and imposibility in MySQL of a GROUP BY in the query above means that we have to dedup here.
     # The imposibility is derived from the fact we want to SELECT *
-    result = uniqfy_parts(result)
+    parts_list = uniqfy_parts(parts_list)
 
-    print('MySql returned {} results'.format(len(result)))
+    print('After deduping we have {} results'.format(len(parts_list)))
 
-    return result
+    return parts_list
 
 
-def uniqfy_parts(result):
+# Append to each part a list of all the clusters (molds) than it's been seen in
+def attach_clusters_to_parts(parts_list):
+    grouped_parts = defaultdict(list)
+
+    for individual_part in parts_list:
+        grouped_parts[individual_part['number']].append(individual_part)
+
+    for part_number, group in grouped_parts.items():
+        clusters = []
+        for individual_part in group:
+            if individual_part['weighing_cluster_id']:
+                clusters.append({'weighing_cluster_id': individual_part['weighing_cluster_id'],
+                                 'mean_weight': individual_part['mean_weight'],
+                                 'weighings_count': individual_part['weighings_count']})
+        for individual_part in group:
+            individual_part['clusters'] = clusters
+
+
+# Returns a new list removing duplicated parts
+def uniqfy_parts(parts_list):
     seen = set()
     ret = []
-    for individual_part in result:
+    for individual_part in parts_list:
         if not individual_part['number'] in seen:
             ret.append(individual_part)
             seen.add(individual_part['number'])

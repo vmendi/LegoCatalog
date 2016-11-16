@@ -1,5 +1,6 @@
 - Mostrar lista con moldes y sus pesos al pasar por encima.
 - Avisar cuando se va a crear un nuevo molde. "Ponla en las modelos!"
+- Threshold %
 - Catalogo de piezas unicas en la DB.
 - Scroll sin tener que darle a la barra.
 - Buscar por codigo.

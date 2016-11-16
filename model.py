@@ -15,7 +15,7 @@ class Model:
 
         self.curr_parts = []
 
-        self.min_set_qty = 20
+        self.min_set_qty = 10
         self.insert_weighings = True
 
         # Configure weight reader new thread

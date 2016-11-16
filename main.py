@@ -2,7 +2,6 @@ from tkinter import *
 from tkinter.filedialog import asksaveasfilename
 import webbrowser
 from decimal import Decimal
-import db
 
 from options_panel import OptionsPanel
 from blinker import signal
@@ -11,6 +10,7 @@ from part_inventory_list import PartInventoryList
 from part_info_frame import PartInfoFrame
 from part_images_grid import PartImagesGrid
 from weight_panel import WeightPanel
+from part_weighings_panel import PartWeighingsPanel
 from model import Model
 
 
@@ -32,9 +32,17 @@ class Application(Frame):
 
         self.menu_bar.add_cascade(label="File", menu=self.menu_file)
 
-        # Weight Panel (Left frame)
-        self.weight_panel = WeightPanel(self, self.model)
+        # Left frame, which contains two panels: WeightPanel and PartWeighingsPanel
+        self.left_frame = Frame(self)
+        self.left_frame.grid(row=0, column=0, sticky='ns')
+
+        # Weight Panel (Inside left frame)
+        self.weight_panel = WeightPanel(self.left_frame, self.model)
         self.weight_panel.grid(row=0, column=0, sticky='n', padx=5, pady=10)
+
+        # Weighing clusters (Inside left frame too)
+        self.weighings_panel = PartWeighingsPanel(self.left_frame)
+        self.weighings_panel.grid(row=1, column=0, sticky='nswe', padx=5)
 
         # Options Panel
         self.options_panel = OptionsPanel(self, self.model)
@@ -66,7 +74,7 @@ class Application(Frame):
 
     def on_test_01(self, sender):
         self.after_cancel(self.check_new_weight_timer)
-        self.model.set_current_weight(weight=Decimal('0.80'), threshold=Decimal('0.02'))
+        self.model.set_current_weight(weight=Decimal('0.80'), threshold=Decimal('0.12'))
 
 
     def check_new_weight(self):
