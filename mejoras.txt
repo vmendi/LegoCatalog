@@ -1,0 +1,10 @@
+- Mostrar lista con moldes y sus pesos al pasar por encima.
+- Avisar cuando se va a crear un nuevo molde. "Ponla en las modelos!"
+- Catalogo de piezas unicas en la DB.
+- Scroll sin tener que darle a la barra.
+- Buscar por codigo.
+- Editar cantidad.
+- Filtro por: Categoria. Color. Nombre.
+- Items similares bricklink.
+- Descargar foto alternativa rebrickable para poner en mouse over.
+- Al "remove" de pieza, quitarla de las pesadas (recalcular clusters dada las pesadas?) Detectar outliers?
