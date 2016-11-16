@@ -6,7 +6,7 @@ import fetch_image
 
 class PartImagesGrid (Frame):
     def __init__(self, master):
-        Frame.__init__(self, master, bd = 1, relief = SUNKEN)
+        Frame.__init__(self, master, bd = 1, relief=SUNKEN)
 
         self.image_widgets = []
 
@@ -27,6 +27,18 @@ class PartImagesGrid (Frame):
                                                        tags="self.inner_frame")
 
         signal('on_new_weight').connect(self.on_new_weight)
+
+        self.canvas.bind('<Enter>', self.bound_to_mousewheel)
+        self.canvas.bind('<Leave>', self.unbound_to_mousewheel)
+
+    def bound_to_mousewheel(self, event):
+        signal("on_mouse_global_wheel").connect(self.on_mouse_wheel)
+
+    def unbound_to_mousewheel(self, event):
+        signal("on_mouse_global_wheel").disconnect(self.on_mouse_wheel)
+
+    def on_mouse_wheel(self, sender, mouse_event):
+        self.canvas.yview_scroll(-mouse_event.delta, "units")
 
     def on_inner_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))

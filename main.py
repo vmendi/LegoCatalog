@@ -131,10 +131,20 @@ if __name__ == '__main__':
 
     center_window(root)
 
+    def on_mouse_wheel(event):
+        signal('on_mouse_global_wheel').send(root, mouse_event=event)
+
+    root.bind("<MouseWheel>", on_mouse_wheel)
+
     def on_closing():
         root.destroy()
         myapp.model.my_weight_reader.stop()
 
     root.protocol("WM_DELETE_WINDOW", on_closing)
 
-    myapp.mainloop()
+    while True:
+        try:
+            myapp.mainloop()
+            break
+        except UnicodeDecodeError:
+            pass
