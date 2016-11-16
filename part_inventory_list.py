@@ -98,6 +98,18 @@ class PartInventoryList (Frame):
 
         self.after(100, lambda: self.canvas.yview_moveto(1))
 
+        self.canvas.bind('<Enter>', self.bound_to_mousewheel)
+        self.canvas.bind('<Leave>', self.unbound_to_mousewheel)
+
+    def bound_to_mousewheel(self, event):
+        signal("on_mouse_global_wheel").connect(self.on_mouse_wheel)
+
+    def unbound_to_mousewheel(self, event):
+        signal("on_mouse_global_wheel").disconnect(self.on_mouse_wheel)
+
+    def on_mouse_wheel(self, sender, mouse_event):
+        self.canvas.yview_scroll(-mouse_event.delta, "units")
+
     def delete_part_entry(self, part_entry):
         part_entry_widgets = self.part_entry_widgets_map[part_entry.hash()]
 
