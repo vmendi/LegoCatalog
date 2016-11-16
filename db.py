@@ -19,16 +19,30 @@ def get_by_weight_from_db_with_threshold(weight, threshold, min_set_qty):
           "LEFT JOIN ordering on ordering.number = filtered_parts_with_qty.number " \
           "WHERE IFNULL(weighings_clusters.mean_weight, filtered_parts_with_qty.weight) >= %s " \
           "AND IFNULL(weighings_clusters.mean_weight, filtered_parts_with_qty.weight) < %s AND total_qty > %s " \
-          "GROUP BY filtered_parts_with_qty.number " \
           "ORDER BY total_qty desc"
     cursor.execute(sql, (weight - threshold, weight + threshold, min_set_qty))
     result = cursor.fetchall()
     cursor.close()
     cxn.close()
 
+    # The lack and imposibility in MySQL of a GROUP BY in the query above means that we have to dedup here
+    # The imposibility is derived from the fact we want to SELECT *
+    result = uniqfy_parts(result)
+
     print('MySql returned {} results'.format(len(result)))
 
     return result
+
+
+def uniqfy_parts(result):
+    seen = set()
+    ret = []
+    for individual_part in result:
+        if not individual_part['number'] in seen:
+            ret.append(individual_part)
+            seen.add(individual_part['number'])
+    return ret
+
 
 def get_colors_for_part_number(part_number):
     print('Querying MySql get_colors_for_part with part_number {}'.format(part_number))
@@ -49,6 +63,7 @@ def get_colors_for_part_number(part_number):
     print('MySql returned {} results'.format(len(result)))
 
     return result
+
 
 def insert_weighing(part_number, color_id, weight, threshold):
     print('Inserting weighing {}, {}, {}, {}'.format(part_number, color_id, weight, threshold))
