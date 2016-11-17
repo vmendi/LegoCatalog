@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter.filedialog import asksaveasfilename
+from tkinter.messagebox import askokcancel
 import webbrowser
+import db
 from decimal import Decimal
 
 from options_panel import OptionsPanel
@@ -92,12 +94,21 @@ class Application(Frame):
 
 
     def on_color_picker_closed(self, sender, part, part_color):
-        if part is not None and part_color is part_color:
-            # Create the part in the model
-            part_entry = self.model.on_new_weighing(part, part_color)
 
-            # Add it to the UI
-            self.right_frame.add_part_entry(part_entry)
+        # Was cancel?
+        if part is not None and part_color is not None:
+            # Ask for confirmation in case of creating a new mold
+            actually_insert = True
+            if not db.get_closest_cluster(part['number'], self.model.current_weight):
+                if not askokcancel("New Mold!", "A new mold will be created. Are you sure?"):
+                    actually_insert = False
+
+            if actually_insert:
+                # Create the part in the model
+                part_entry = self.model.on_new_weighing(part, part_color)
+
+                # Add it to the UI
+                self.right_frame.add_part_entry(part_entry)
 
         self.options_panel.on_color_picker_closed_fix_bug()
         self.model.refresh_parts()
