@@ -43,7 +43,11 @@ class PartWeighingsPanel(Frame):
                 cluster_frame.grid(row=row_count, column=0, sticky='we', pady=5)
                 row_count += 1
         else:
-            title_text = Label(self, text='From Bricklink', anchor='center', pady=2)
+            title_text = Label(self, text='From Bricklink:')
             self.part_weighings_widgets.append(title_text)
-            title_text.grid(row=0, column=0, sticky='we')
+            title_text.grid(row=0, column=0, sticky='w', pady=5)
+
+            weight_text = Label(self, text=str(part['weight']))
+            self.part_weighings_widgets.append(weight_text)
+            weight_text.grid(row=0, column=1, sticky='e', pady=5)
 
