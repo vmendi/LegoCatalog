@@ -74,7 +74,7 @@ class Application(Frame):
 
     def on_test_01(self, sender):
         self.after_cancel(self.check_new_weight_timer)
-        self.model.set_current_weight(weight=Decimal('0.80'), threshold=Decimal('0.12'))
+        self.model.set_current_weight(weight=Decimal('0.90'), threshold=Decimal('0.12'))
 
 
     def check_new_weight(self):
@@ -100,6 +100,7 @@ class Application(Frame):
             self.right_frame.add_part_entry(part_entry)
 
         self.options_panel.on_color_picker_closed_fix_bug()
+        self.model.refresh_parts()
 
 
     def on_mouse_click_part(self, sender, part):

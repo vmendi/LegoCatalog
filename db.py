@@ -90,15 +90,12 @@ def get_colors_for_part_number(part_number):
     return result
 
 
-def insert_weighing(part_number, color_id, weight, threshold):
-    print('Inserting weighing {}, {}, {}, {}'.format(part_number, color_id, weight, threshold))
-
-    cluster_threshold = weight * Decimal('0.03')    # Accept 3% tolerance
-
+def get_closest_cluster(part_number, weight):
     cxn = connect()
     cursor = cxn.cursor(pymysql.cursors.DictCursor)
 
-    # Obtain the closest cluster
+    cluster_threshold = get_cluster_threshold(weight)
+
     sql = "SELECT * " \
           "FROM weighings_clusters " \
           "WHERE part_number = %s " \
@@ -108,6 +105,39 @@ def insert_weighing(part_number, color_id, weight, threshold):
     result = cursor.fetchall()
 
     if len(result) == 0:
+        return None
+
+    cluster = result[0]
+
+    if len(result) > 1:
+        print('Clustering error, {} clusters'.format(len(result)))
+        min_dist = Decimal('99999')
+        # Pick out the closest cluster
+        for curr_cluster in result:
+            curr_dist = abs(curr_cluster['mean_weight'] - weight)
+            if curr_dist < min_dist:
+                cluster = curr_cluster
+                min_dist = curr_dist
+
+    cursor.close()
+    cxn.close()
+
+    return cluster
+
+
+def get_cluster_threshold(for_weight):
+    return for_weight * Decimal('0.03')    # Accept 3% tolerance
+
+
+def insert_weighing(part_number, color_id, weight, threshold):
+    print('Inserting weighing {}, {}, {}, {}'.format(part_number, color_id, weight, threshold))
+
+    cluster = get_closest_cluster(part_number, weight)
+
+    cxn = connect()
+    cursor = cxn.cursor(pymysql.cursors.DictCursor)
+
+    if not cluster:
         print("Creating weighing cluster")
 
         sql = "INSERT INTO weighings_clusters (part_number, mean_weight, weighings_count) " \
@@ -117,24 +147,12 @@ def insert_weighing(part_number, color_id, weight, threshold):
         weighing_cluster_id = cursor.lastrowid
         print("Weighing cluster created with weighing_cluster_id {}".format(weighing_cluster_id))
     else:
-        cluster = result[0]
-
-        if len(result) > 1:
-            print('Clustering error, {} clusters'.format(len(result)))
-            min_dist = Decimal('99999')
-            # Pick out the closest cluster
-            for curr_cluster in result:
-                curr_dist = abs(curr_cluster['mean_weight'] - weight)
-                if curr_dist  < min_dist:
-                    cluster = curr_cluster
-                    min_dist = curr_dist
-
         weighing_cluster_id = cluster['weighing_cluster_id']
         prev_mean_weight = Decimal(cluster['mean_weight'])
         prev_weighings_count = cluster['weighings_count']
 
         print("Updating weighing cluster with weighing_cluster_id {}, mean_weight {}, weighings_count {}"
-                .format(weighing_cluster_id, prev_mean_weight, prev_weighings_count))
+              .format(weighing_cluster_id, prev_mean_weight, prev_weighings_count))
 
         sql = "UPDATE weighings_clusters " \
               " SET mean_weight = %s, " \
@@ -148,7 +166,7 @@ def insert_weighing(part_number, color_id, weight, threshold):
     sql = "INSERT INTO weighings (part_number, color_id, weight, threshold, weighing_cluster_id, cluster_threshold) " \
           "VALUES (%s, %s, %s, %s, %s, %s)"
 
-    cursor.execute(sql, (part_number, color_id, weight, threshold, weighing_cluster_id, cluster_threshold))
+    cursor.execute(sql, (part_number, color_id, weight, threshold, weighing_cluster_id, get_cluster_threshold(weight)))
 
     cursor.close()
     cxn.close()
