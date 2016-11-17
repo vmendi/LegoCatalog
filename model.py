@@ -20,7 +20,7 @@ class Model:
 
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
-        #self.my_weight_reader.start()
+        self.my_weight_reader.start()
 
     def increase_window_center(self):
         self.current_window_center += self.current_threshold*2
