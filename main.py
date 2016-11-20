@@ -34,21 +34,28 @@ class Application(Frame):
 
         self.menu_bar.add_cascade(label="File", menu=self.menu_file)
 
-        # Left frame, which contains two panels: WeightPanel and PartWeighingsPanel
+        # Left frame, which contains WeightPanel, part_number_filter and PartWeighingsPanel
         self.left_frame = Frame(self)
         self.left_frame.grid(row=0, column=0, sticky='ns')
 
         # Weight Panel (Inside left frame)
         self.weight_panel = WeightPanel(self.left_frame, self.model)
-        self.weight_panel.grid(row=0, column=0, sticky='n', padx=5, pady=10)
+        self.weight_panel.grid(row=0, column=0, sticky='n', padx=5, pady=5)
+
+        # Part number filer (Inside left frame)
+        self.part_number_filter_txt = StringVar(self)
+        self.part_number_filter_txt.trace('w', self.on_part_number_filter_txt_change)
+
+        self.part_number_filter = Entry(self.left_frame, textvariable=self.part_number_filter_txt)
+        self.part_number_filter.grid(row=1, column=0, sticky='we', padx=5)
 
         # Weighing clusters (Inside left frame too)
         self.weighings_panel = PartWeighingsPanel(self.left_frame)
-        self.weighings_panel.grid(row=1, column=0, sticky='nswe', padx=5)
+        self.weighings_panel.grid(row=2, column=0, sticky='nwe', padx=5, pady=5)
 
         # Options Panel
         self.options_panel = OptionsPanel(self, self.model)
-        self.options_panel.grid(row=1, column=0, sticky='s', padx=5, pady=10)
+        self.options_panel.grid(row=3, column=0, sticky='s', padx=5, pady=10)
 
         # Center Frame
         self.part_images_grid = PartImagesGrid(self)
@@ -78,6 +85,16 @@ class Application(Frame):
         self.after_cancel(self.check_new_weight_timer)
         self.model.set_current_weight(weight=Decimal('0.90'), threshold=Decimal('0.12'))
 
+    def on_part_number_filter_txt_change(self, *args):
+        val = self.part_number_filter_txt.get()
+        self.model.set_part_number_filter(val)
+
+        if len(val) == 0:
+            self.part_number_filter.config(bg='white')
+        elif len(val) < 4:
+            self.part_number_filter.config(bg='red')
+        else:
+            self.part_number_filter.config(bg='white')
 
     def check_new_weight(self):
         self.model.check_new_weight()

@@ -18,6 +18,8 @@ class Model:
         self.min_set_qty = 10
         self.insert_weighings = True
 
+        self.current_part_number_filter = ""
+
         # Configure weight reader new thread
         self.my_weight_reader = WeightSerialReader()
         self.my_weight_reader.start()
@@ -68,6 +70,19 @@ class Model:
 
     def set_insert_weighings(self, val):
         self.insert_weighings = val
+
+    def set_part_number_filter(self, filter_val):
+        if len(filter_val) > 3:
+            self.curr_parts = db.get_by_part_number(filter_val)
+            signal('on_new_part_number_filter').send(self,
+                                                     part_number=filter_val,
+                                                     parts=self.curr_parts)
+        else:
+            # Reset the filter and show all parts if we come from filtering
+            if len(self.current_part_number_filter) > 3:
+                self.refresh_parts()
+
+        self.current_part_number_filter = filter_val
 
     # We got a new Weighing!
     def on_new_weighing(self, part, part_color):

@@ -27,6 +27,7 @@ class PartImagesGrid (Frame):
                                                        tags="self.inner_frame")
 
         signal('on_new_weight').connect(self.on_new_weight)
+        signal('on_new_part_number_filter').connect(self.on_new_part_number_filter)
 
         self.canvas.bind('<Enter>', self.bound_to_mousewheel)
         self.canvas.bind('<Leave>', self.unbound_to_mousewheel)
@@ -73,3 +74,6 @@ class PartImagesGrid (Frame):
             new_url_label.bind("<Button-1>", lambda e, p=part: signal('on_mouse_click_url').send(self, part=p))
             new_frame.bind("<Enter>", lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
             new_image_label.bind("<Button-1>", lambda e, p=part: signal('on_mouse_click_part').send(self, part=p))
+
+    def on_new_part_number_filter(self, sender, part_number, parts):
+        self.on_new_weight(sender, 0, 0, 0, parts)  # We can send 0, 0, 0 because they are unused

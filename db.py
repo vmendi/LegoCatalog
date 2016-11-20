@@ -9,6 +9,32 @@ def connect():
     return cxn
 
 
+def get_by_part_number(current_part_number_filter):
+    print('Querying MySql get_by_part_number with current_part_number_filter {}'.format(current_part_number_filter))
+
+    cxn = connect()
+    cursor = cxn.cursor(pymysql.cursors.DictCursor)
+    sql = "SELECT * " \
+          "FROM filtered_parts_with_qty " \
+          "LEFT JOIN weighings_clusters on weighings_clusters.part_number = filtered_parts_with_qty.number " \
+          "LEFT JOIN ordering on ordering.number = filtered_parts_with_qty.number " \
+          "WHERE filtered_parts_with_qty.number LIKE %s " \
+          "ORDER BY total_qty desc"
+    cursor.execute(sql, current_part_number_filter + '%')
+    parts_list = cursor.fetchall()
+    cursor.close()
+    cxn.close()
+
+    print('MySql returned {} results'.format(len(parts_list)))
+
+    attach_clusters_to_parts(parts_list)
+    parts_list = uniqfy_parts(parts_list)
+
+    print('After deduping we have {} results'.format(len(parts_list)))
+
+    return parts_list
+
+
 def get_by_weight_from_db_with_threshold(weight, threshold, min_set_qty):
     print('Querying MySql get_by_weight_from_db_with_threshold with weight {}, threshold {}'.format(weight, threshold))
 
