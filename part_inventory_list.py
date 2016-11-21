@@ -96,10 +96,12 @@ class PartInventoryList (Frame):
             widget.bind("<Enter>",    lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
             widget.bind("<Button-2>", lambda e, p=part_entry: self.on_right_button_click(e, p))
 
-        self.after(100, lambda: self.canvas.yview_moveto(1))
+        self.after_idle(lambda: self.canvas.yview_moveto(1))
 
         self.canvas.bind('<Enter>', self.bound_to_mousewheel)
         self.canvas.bind('<Leave>', self.unbound_to_mousewheel)
+
+        self.blink(part_entry_widgets)
 
     def bound_to_mousewheel(self, event):
         signal("on_mouse_global_wheel").connect(self.on_mouse_wheel)
@@ -123,3 +125,29 @@ class PartInventoryList (Frame):
     def update_part_entry(self, part_entry):
         part_entry_widgets = self.part_entry_widgets_map[part_entry.hash()]
         part_entry_widgets['count']['text'] = part_entry.count
+
+        self.canvas.yview_moveto(part_entry_widgets['count'].winfo_y() / self.inner_frame.winfo_height())
+
+        self.blink(part_entry_widgets)
+
+    def blink(self, part_entry_widgets):
+        part_entry_widgets['blink_counter'] = 10
+
+        def blink_inner():
+            if part_entry_widgets['color']['bg'] == 'white':
+                part_entry_widgets['color']['bg'] = 'green'
+            else:
+                part_entry_widgets['color']['bg'] = 'white'
+                part_entry_widgets['numba']['bg'] = 'white'
+
+            part_entry_widgets['blink_counter'] -= 1
+
+            if part_entry_widgets['blink_counter'] > 0:
+                self.after(500, blink_inner)
+            elif part_entry_widgets['color']['bg'] == 'green':
+                part_entry_widgets['blink_counter'] = 1
+                self.after(500, blink_inner)
+
+        self.after(500, blink_inner)
+
+
