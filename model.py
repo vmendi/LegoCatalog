@@ -4,6 +4,12 @@ import db
 from lxml import etree
 from weight_serial_reader import WeightSerialReader
 
+def is_integer(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 class Model:
     def __init__(self):
@@ -126,6 +132,13 @@ class PartEntryList:
         self.save_xml('data/_backup.xml')
 
         return erased
+
+    def set_part_entry_count(self, part_entry, new_count):
+        assert part_entry in self.part_entries
+
+        part_entry.count = new_count
+
+        self.save_xml('data/_backup.xml')
 
     def add_part_entry(self, part, part_color):
         part_entry_ret = self.find_part_entry(part['number'], part_color['color_id'])

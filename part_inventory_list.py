@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter.font import Font
 from blinker import signal
+
+import model
 from color_picker import ColorPicker
 import fetch_image
 
@@ -96,12 +98,45 @@ class PartInventoryList (Frame):
             widget.bind("<Enter>",    lambda e, p=part: signal('on_mouse_over_part').send(self, part=p))
             widget.bind("<Button-2>", lambda e, p=part_entry: self.on_right_button_click(e, p))
 
+        part_entry_widgets['count'].bind("<Button-1>",
+                                         lambda e, pw=part_entry_widgets, p=part_entry, r=next_row_index:
+                                            self.on_part_count_click(e, pw, p, r))
+
         self.after_idle(lambda: self.canvas.yview_moveto(1))
 
         self.canvas.bind('<Enter>', self.bound_to_mousewheel)
         self.canvas.bind('<Leave>', self.unbound_to_mousewheel)
 
         self.blink(part_entry_widgets)
+
+    def on_part_count_click(self, event, part_entry_widgets, part_entry, row_index):
+
+        part_entry_widgets['count'].grid_forget()
+        part_entry_widgets['count_edit'] = Entry(self.inner_frame)
+        part_entry_widgets['count_edit'].insert(END, part_entry_widgets['count']['text'])
+        part_entry_widgets['count_edit'].grid(row=row_index, column=5)
+        part_entry_widgets['count_edit'].focus_set()
+
+        def on_enter(event_on_focus):
+            after_edit_val = part_entry_widgets['count_edit'].get()
+
+            if after_edit_val != "" and model.is_integer(after_edit_val):
+                self.part_entry_list.set_part_entry_count(part_entry, int(after_edit_val))
+                part_entry_widgets['count']['text'] = after_edit_val
+
+            part_entry_widgets['count_edit'].destroy()
+            part_entry_widgets['count_edit'] = None
+            part_entry_widgets['count'].grid(row=row_index, column=5)
+
+        def on_cancel(event_on_cancel):
+            part_entry_widgets['count_edit'].destroy()
+            part_entry_widgets['count_edit'] = None
+            part_entry_widgets['count'].grid(row=row_index, column=5)
+
+        part_entry_widgets['count_edit'].bind("<Return>", on_enter)
+        part_entry_widgets['count_edit'].bind('<FocusOut>', on_enter)
+        part_entry_widgets['count_edit'].bind('<Escape>', on_cancel)
+
 
     def bound_to_mousewheel(self, event):
         signal("on_mouse_global_wheel").connect(self.on_mouse_wheel)
