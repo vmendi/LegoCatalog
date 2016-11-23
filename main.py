@@ -59,10 +59,10 @@ class Application(Frame):
 
         # Center Frame
         self.part_images_grid = PartImagesGrid(self)
-        self.part_images_grid.grid(row=0, column=1, sticky='nswe', pady=10)
+        self.part_images_grid.grid(row=0, rowspan=3, column=1, sticky='nswe', pady=10)
 
         self.part_info = PartInfoFrame(self)
-        self.part_info.grid(row=1, column=1, sticky='we', padx=5, pady=10)
+        self.part_info.grid(row=3, column=1, sticky='we', padx=5, pady=10)
 
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, minsize=360)
