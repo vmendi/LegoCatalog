@@ -67,7 +67,7 @@ class PartImagesGrid (Frame):
             new_url_label.pack()
 
             # Add to grid
-            new_frame.grid(row=int(len(self.image_widgets) / 8), column=int(len(self.image_widgets) % 8))
+            new_frame.grid(row=int(len(self.image_widgets) / 10), column=int(len(self.image_widgets) % 10))
             self.image_widgets.append(new_frame)
 
             # Emit events
